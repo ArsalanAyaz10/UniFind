@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unifind/features/splash/presentation/splash_screen.dart';
 
 class UniFindApp extends StatelessWidget {
   const UniFindApp({super.key});
@@ -14,9 +15,7 @@ class UniFindApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
       ),
       themeMode: ThemeMode.system,
-      home: const Scaffold(
-        body: Center(child: Text('Welcome to UniFind')),
-      ),
+      home: SplashScreen(),
     );
   }
 }
