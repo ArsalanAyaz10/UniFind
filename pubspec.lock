@@ -182,6 +182,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_gradient_button:
+    dependency: "direct main"
+    description:
+      name: flutter_gradient_button
+      sha256: "883b7aa6fa830ca1d6dd81ff980b1ec7092b4fecbea3cc64c4e3d35e64952ead"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"
     description:
