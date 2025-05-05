@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_button/flutter_gradient_button.dart';
-import 'package:unifind/core/widgets/auth_button.dart';
-import 'package:unifind/features/splash/presentation/splash_screen.dart';
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
@@ -68,7 +66,7 @@ class BuildUI extends StatelessWidget {
               ),
               text: "Login",
               onPressed: () {
-                print("Button clicked");
+                Navigator.pushNamed(context, '/login');
               },
             ),
             const SizedBox(height: 20),
@@ -93,7 +91,7 @@ class BuildUI extends StatelessWidget {
               ),
               text: "Sign Up",
               onPressed: () {
-                print("Button clicked");
+                Navigator.pushNamed(context, '/splash');
               },
             ),
           ],

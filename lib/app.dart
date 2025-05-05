@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unifind/features/auth/presentation/getstarted_screen.dart';
 import 'package:unifind/features/splash/presentation/splash_screen.dart';
 
 class UniFindApp extends StatelessWidget {
@@ -7,6 +8,12 @@ class UniFindApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+         '/splash': (context) => SplashScreen(),
+         '/started': (context) => GetStartedScreen(),
+        // '/login': (context) =>  LoginScreen(),
+        // '/signup': (context) =>  SignUpScreen(),
+      },
       title: 'UniFind',
       theme: ThemeData.light().copyWith(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
