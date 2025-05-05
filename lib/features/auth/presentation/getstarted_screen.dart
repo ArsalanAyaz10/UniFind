@@ -91,7 +91,7 @@ class BuildUI extends StatelessWidget {
               ),
               text: "Sign Up",
               onPressed: () {
-                Navigator.pushNamed(context, '/splash');
+                Navigator.pushNamed(context, '/signup');
               },
             ),
           ],

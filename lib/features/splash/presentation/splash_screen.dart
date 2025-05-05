@@ -14,8 +14,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _loadBackend();
   }
 
+
   Future<void> _loadBackend() async {
     await Future.delayed(Duration(seconds: 5));
+    // Simulate a network call or any other initialization logic here
     if (!mounted) return;
     Navigator.pushNamed(context, '/started');
   }
