@@ -250,6 +250,7 @@ class _SignUpUIState extends State<SignUpUI> {
                           if (_formKey.currentState!.validate()) {
                             // Perform sign-up auth using firebase auth
                             context.read<AuthCubit>().signUp(
+                              name: _usernameController.text,
                               email: _emailController.text,
                               password: _passwordController.text,
                             );

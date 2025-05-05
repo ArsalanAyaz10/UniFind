@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,13 @@ class UniFindApp extends StatelessWidget {
       providers: [
         // Provide FirebaseAuth and AuthRepository
         BlocProvider<AuthCubit>(
-          create: (_) => AuthCubit(AuthRepository(FirebaseAuth.instance)),
+          create:
+              (_) => AuthCubit(
+                AuthRepository(
+                  FirebaseAuth.instance,
+                  FirebaseFirestore.instance,
+                ),
+              ),
         ),
       ],
       child: MaterialApp(

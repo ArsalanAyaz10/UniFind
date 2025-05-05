@@ -1,25 +1,62 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:unifind/features/auth/data/model/user_model.dart';
 
 class AuthRepository {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth firebaseAuth;
+  final FirebaseFirestore _firestore;
 
-  AuthRepository(this._firebaseAuth);
+  AuthRepository(this.firebaseAuth, this._firestore);
 
-  Future<void> signUp(String email, String password) async {
-    await _firebaseAuth.createUserWithEmailAndPassword(
+  Future<void> signUp(String email, String password, String name) async {
+    await firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    final user = firebaseAuth.currentUser;
+
+    final newUser = AppUser(
+      name: name,
+      email: email,
+      program: null,         
+      studentId: null,       
+    );
+
+    await _firestore.collection("users").doc(user?.uid).set(newUser.toMap());
   }
 
-  Future<void> login(String email, String password) async {
-    await _firebaseAuth.signInWithEmailAndPassword(
+  Future<AppUser?> login(String email, String password) async {
+    await firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
+
+    final user = firebaseAuth.currentUser;
+
+    if (user != null) {
+      final userData = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userData.exists) {
+        final appUser = AppUser.fromMap(user.uid, userData.data()!);
+        return appUser;
+      }
+    }
+    return null;
   }
 
   Future<void> logout() async {
-    await _firebaseAuth.signOut();
+    await firebaseAuth.signOut();
+  }
+
+  Future<void> updateProfile(String uid, {String? program, int? studentId}) async {
+    Map<String, dynamic> updates = {};
+
+    if (program != null) updates['program'] = program;
+    if (studentId != null) updates['studentId'] = studentId;
+
+    await _firestore.collection('users').doc(uid).update(updates);
   }
 }

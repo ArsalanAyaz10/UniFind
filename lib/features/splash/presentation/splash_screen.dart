@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:unifind/features/auth/presentation/getstarted_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -13,7 +12,6 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     _loadBackend();
   }
-
 
   Future<void> _loadBackend() async {
     await Future.delayed(Duration(seconds: 5));
