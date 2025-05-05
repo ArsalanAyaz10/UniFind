@@ -6,6 +6,9 @@ class AuthLoading extends AuthState {} //  we are waiting for the result.
 
 class AuthSuccess extends AuthState {} // signup or login succeeded.
 
+class AuthLoggedOut extends AuthState {} // for logout
+
+
 //failure in sign up or login.
 class AuthError extends AuthState {
   final String message;

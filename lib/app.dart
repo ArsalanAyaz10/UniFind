@@ -6,6 +6,7 @@ import 'package:unifind/features/auth/data/auth_repository.dart';
 import 'package:unifind/features/auth/presentation/getstarted_screen.dart';
 import 'package:unifind/features/auth/presentation/login_screen.dart';
 import 'package:unifind/features/auth/presentation/signup_screen.dart';
+import 'package:unifind/features/home/presentation/home_screen.dart';
 import 'package:unifind/features/splash/presentation/splash_screen.dart';
 
 class UniFindApp extends StatelessWidget {
@@ -22,19 +23,23 @@ class UniFindApp extends StatelessWidget {
       ],
       child: MaterialApp(
         routes: {
-           '/splash': (context) => SplashScreen(),
-           '/started': (context) => GetStartedScreen(),
-           '/login': (context) =>  LoginScreen(),
-           '/signup': (context) =>  SignupScreen(),
+          '/splash': (context) => SplashScreen(),
+          '/started': (context) => GetStartedScreen(),
+          '/login': (context) => LoginScreen(),
+          '/signup': (context) => SignupScreen(),
+          '/home': (context) => HomeScreen(),
         },
         title: 'UniFind',
         theme: ThemeData.light().copyWith(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         darkTheme: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple,
+            brightness: Brightness.dark,
+          ),
         ),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         home: SplashScreen(),
       ),
     );

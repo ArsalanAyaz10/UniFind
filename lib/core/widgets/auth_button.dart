@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
+  final Color? color; // Make color optional (nullable)
 
-  const CustomButton({super.key, required this.text, required this.onPressed});
+  CustomButton({
+    super.key,
+    this.color,
+    required this.text,
+    required this.onPressed,
+  });
 
   @override
   State<CustomButton> createState() => _CustomButtonState();
@@ -43,11 +49,15 @@ class _CustomButtonState extends State<CustomButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: gradientColors,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient:
+                widget.color == null
+                    ? LinearGradient(
+                      colors: gradientColors,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                    : null, // If a solid color is provided, skip gradient
+            color: widget.color, // Use solid color if provided
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               if (_isPressed)

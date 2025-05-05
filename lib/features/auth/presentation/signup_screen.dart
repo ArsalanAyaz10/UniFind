@@ -15,9 +15,9 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 247, 248, 250),
       resizeToAvoidBottomInset: true,
       body: BlocListener<AuthCubit, AuthState>(
-      
         listener: (context, state) {
           if (state is AuthLoading) {
             // Show loading indicator when signing up
@@ -118,7 +118,7 @@ class _SignUpUIState extends State<SignUpUI> {
                           labelText: "Username",
                           prefixIcon: const Icon(Icons.account_circle_sharp),
                           filled: true,
-                          fillColor: const Color.fromARGB(255, 246, 246, 246),
+                          fillColor: Color.fromARGB(255, 247, 248, 250),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
@@ -253,7 +253,7 @@ class _SignUpUIState extends State<SignUpUI> {
                               email: _emailController.text,
                               password: _passwordController.text,
                             );
-                            }
+                          }
                         },
                       ),
                     ],
