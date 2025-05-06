@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:unifind/features/auth/data/model/user_model.dart';
+import 'package:unifind/core/models/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth firebaseAuth;
@@ -51,12 +51,5 @@ class AuthRepository {
     await firebaseAuth.signOut();
   }
 
-  Future<void> updateProfile(String uid, {String? program, int? studentId}) async {
-    Map<String, dynamic> updates = {};
 
-    if (program != null) updates['program'] = program;
-    if (studentId != null) updates['studentId'] = studentId;
-
-    await _firestore.collection('users').doc(uid).update(updates);
-  }
 }

@@ -56,7 +56,12 @@ class _HomeUIState extends State<HomeUI> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CustomButton(text: "Lost Something", onPressed: () {}),
+          CustomButton(
+            text: "Lost Something",
+            onPressed: () {
+              Navigator.of(context).pushNamed('/profile');
+            },
+          ),
           const SizedBox(height: 20),
           CustomButton(text: "Found Something", onPressed: () {}),
         ],

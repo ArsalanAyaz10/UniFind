@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/auth/data/auth_repository.dart';
-import 'package:unifind/features/auth/presentation/getstarted_screen.dart';
-import 'package:unifind/features/auth/presentation/login_screen.dart';
-import 'package:unifind/features/auth/presentation/signup_screen.dart';
-import 'package:unifind/features/home/presentation/home_screen.dart';
-import 'package:unifind/features/splash/presentation/splash_screen.dart';
+import 'package:unifind/features/auth/view/getstarted_screen.dart';
+import 'package:unifind/features/auth/view/login_screen.dart';
+import 'package:unifind/features/auth/view/signup_screen.dart';
+import 'package:unifind/features/home/view/home_screen.dart';
+import 'package:unifind/features/profile/view/profile_screen.dart';
+import 'package:unifind/features/splash/view/splash_screen.dart';
 
 class UniFindApp extends StatelessWidget {
   const UniFindApp({super.key});
@@ -35,6 +36,7 @@ class UniFindApp extends StatelessWidget {
           '/login': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),
           '/home': (context) => HomeScreen(),
+          '/profile': (context) => ProfileScreen(),
         },
         title: 'UniFind',
         theme: ThemeData.light().copyWith(

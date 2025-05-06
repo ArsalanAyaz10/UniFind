@@ -46,25 +46,4 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
- Future<void> updateProfile({
-  String? program,
-  int? studentId,
-}) async {
-  emit(AuthLoading());
-  try {
-    final user = authRepository.firebaseAuth.currentUser;
-    final uid = user?.uid;
-
-    if (uid == null) {
-      emit(AuthError('No user is currently logged in.'));
-      return;
-    }
-
-    await authRepository.updateProfile(uid, program: program, studentId: studentId);
-    emit(AuthSuccess());
-  } catch (e) {
-    emit(AuthError('Update failed: ${e.toString()}'));
-  }
-}
-
 }
