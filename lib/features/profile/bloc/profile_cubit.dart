@@ -8,9 +8,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   ProfileCubit(this.profileRepository) : super(ProfileInitial());
 
-
-
-    Future<void> fetchProfile(String uid) async {
+  Future<void> fetchProfile(String uid) async {
     emit(ProfileLoading());
     try {
       AppUser? user = await profileRepository.fetchProfile(uid);
@@ -29,7 +27,12 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileError('Delete failed: ${e.toString()}'));
     }
   }
-  Future<void> updateProfile({String? program, int? studentId}) async {
+
+  Future<void> updateProfile({
+    required String name,
+    required String program,
+    required int studentId,
+  }) async {
     emit(ProfileLoading());
     try {
       final user = profileRepository.firebaseAuth.currentUser;
@@ -42,6 +45,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       await profileRepository.updateProfile(
         uid,
+        name: name,
         program: program,
         studentId: studentId,
       );

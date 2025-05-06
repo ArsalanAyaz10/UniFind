@@ -8,6 +8,8 @@ import 'package:unifind/features/auth/view/getstarted_screen.dart';
 import 'package:unifind/features/auth/view/login_screen.dart';
 import 'package:unifind/features/auth/view/signup_screen.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
+import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/data/profile_repository.dart';
 import 'package:unifind/features/profile/view/profile_screen.dart';
 import 'package:unifind/features/splash/view/splash_screen.dart';
 
@@ -23,6 +25,15 @@ class UniFindApp extends StatelessWidget {
           create:
               (_) => AuthCubit(
                 AuthRepository(
+                  FirebaseAuth.instance,
+                  FirebaseFirestore.instance,
+                ),
+              ),
+        ),
+        BlocProvider<ProfileCubit>(
+          create:
+              (_) => ProfileCubit(
+                ProfileRepository(
                   FirebaseAuth.instance,
                   FirebaseFirestore.instance,
                 ),

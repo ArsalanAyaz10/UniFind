@@ -59,7 +59,7 @@ class _HomeUIState extends State<HomeUI> {
           CustomButton(
             text: "Lost Something",
             onPressed: () {
-              Navigator.of(context).pushNamed('/profile');
+              Navigator.pushNamed(context, '/profile');
             },
           ),
           const SizedBox(height: 20),
