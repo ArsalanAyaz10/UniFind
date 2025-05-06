@@ -1,15 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:unifind/core/models/user_model.dart';
 import 'package:unifind/core/widgets/auth_button.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
-import 'package:unifind/features/auth/data/models/user_model.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -19,15 +16,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Call fetchProfile on init
-    final uid = 'your_user_uid'; // Replace with actual uid, or get from auth
-    context.read<ProfileCubit>().fetchProfile(uid);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      context.read<ProfileCubit>().fetchProfile();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<ProfileCubit, ProfileState>(
+      appBar: AppBar(
+        title: const Text('Edit Profile'),
+        backgroundColor: const Color(0xFFFF5A5F),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileLoading) {
             showDialog(
@@ -38,242 +44,141 @@ class _ProfileScreenState extends State<ProfileScreen> {
           } else if (state is ProfileSuccess) {
             Navigator.of(context, rootNavigator: true).pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Profile updated successfully!")),
+              const SnackBar(content: Text("Profile Loaded Successfully")),
             );
           } else if (state is ProfileError) {
             Navigator.of(context, rootNavigator: true).pop();
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
-        builder: (context, state) {
-          if (state is ProfileLoaded) {
-            return ProfileBody(user: state.userModel);
-          } else if (state is ProfileLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return const Center(child: Text('Failed to load profile.'));
-          }
-        },
+        child: const ProfileBody(),
       ),
     );
   }
 }
 
 class ProfileBody extends StatefulWidget {
-  final AppUser user;
-
-  const ProfileBody({Key? key, required this.user}) : super(key: key);
+  const ProfileBody({Key? key}) : super(key: key);
 
   @override
   State<ProfileBody> createState() => _ProfileBodyState();
 }
 
 class _ProfileBodyState extends State<ProfileBody> {
-  late TextEditingController _nameController;
-  late TextEditingController _programController;
-  late TextEditingController _studentIdController;
-
-  final ImagePicker _picker = ImagePicker();
-  File? _imageFile;
-  String? _networkImageUrl;
-
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.user.name ?? '');
-    _programController =
-        TextEditingController(text: widget.user.program ?? '');
-    _studentIdController =
-        TextEditingController(text: widget.user.studentId?.toString() ?? '');
-    _networkImageUrl = widget.user.photoUrl;
-  }
-
-  Future<void> _pickImage() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 300,
-        maxHeight: 300,
-        imageQuality: 90,
-      );
-
-      if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-          _networkImageUrl = null;
-        });
-      }
-    } catch (e) {
-      print("Error picking image: $e");
-    }
-  }
-
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      final uid = widget.user.uid;
-      final name = _nameController.text.trim();
-      final program = _programController.text.trim();
-      final studentId = int.tryParse(_studentIdController.text.trim());
-
-      context.read<ProfileCubit>().updateProfile(
-            program: program,
-            studentId: studentId,
-            name: name,
-            // Optionally handle _imageFile upload to storage and save the URL here
-          );
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _programController.dispose();
-    _studentIdController.dispose();
-    super.dispose();
-  }
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _programController = TextEditingController();
+  final TextEditingController _stuIDController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 120,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Color(0xFFFFA500), Color(0xFFFF5A5F)],
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'EDIT PROFILE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[200],
+                child: const Icon(Icons.person, size: 60, color: Colors.grey),
               ),
             ),
-          ),
-        ),
-        Expanded(
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage: _imageFile != null
-                            ? FileImage(_imageFile!)
-                            : _networkImageUrl != null
-                                ? NetworkImage(_networkImageUrl!)
-                                : null,
-                        child: _imageFile == null && _networkImageUrl == null
-                            ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                            : null,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF5A5F),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                            onPressed: _pickImage,
-                          ),
+            const SizedBox(height: 30),
+            BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, state) {
+                if (state is ProfileLoaded) {
+                  _usernameController.text = state.user.name ?? '';
+                  _programController.text = state.user.program ?? '';
+                  _stuIDController.text = state.user.studentId.toString();
+                }
+                return Column(
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        labelText: "Enter Your Full Name",
+                        prefixIcon: const Icon(Icons.password_rounded),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 246, 246, 246),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _programController,
-                  decoration: const InputDecoration(
-                    labelText: 'Program',
-                    prefixIcon: Icon(Icons.school),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty ? 'Please enter your program' : null,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _studentIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Student ID',
-                    prefixIcon: Icon(Icons.badge),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty ? 'Please enter your student ID' : null,
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF5A5F),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text('SAVE CHANGES', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 15),
-                OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    side: const BorderSide(color: Color(0xFFFF5A5F)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text('CANCEL',
-                      style: TextStyle(color: Color(0xFFFF5A5F), fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-              ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _programController,
+                      decoration: InputDecoration(
+                        labelText: "Enter Your Program",
+                        prefixIcon: const Icon(Icons.password_rounded),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 246, 246, 246),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your program';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _stuIDController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Student ID",
+                        prefixIcon: const Icon(Icons.card_membership_sharp),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 246, 246, 246),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your student ID';
+                        }
+                        if (!RegExp(r'^\d+$').hasMatch(value)) {
+                          return 'Student ID must be numeric';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    CustomButton(
+                      text: "Save Changes",
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<ProfileCubit>().updateProfile(
+                            name: _usernameController.text,
+                            program: _programController.text,
+                            studentId: int.tryParse(_stuIDController.text) ?? 0,
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    CustomButton(text: "Cancel", onPressed: () {}),
+                  ],
+                );
+              },
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

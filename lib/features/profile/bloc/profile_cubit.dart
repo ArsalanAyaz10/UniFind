@@ -8,15 +8,28 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   ProfileCubit(this.profileRepository) : super(ProfileInitial());
 
-  Future<void> fetchProfile(String uid) async {
-    emit(ProfileLoading());
-    try {
-      AppUser? user = await profileRepository.fetchProfile(uid);
-      emit(ProfileLoaded(user!));
-    } catch (e) {
-      emit(ProfileError('Fetch failed: ${e.toString()}'));
+Future<void> fetchProfile() async {
+  emit(ProfileLoading());
+  try {
+    final user = profileRepository.firebaseAuth.currentUser;
+    final uid = user?.uid;
+
+    if (uid == null) {
+      emit(ProfileError('No user is currently logged in.'));
+      return;
     }
+
+    AppUser? userProfile = await profileRepository.fetchProfile(uid);
+    if (userProfile != null) {
+      emit(ProfileLoaded(userProfile));
+    } else {
+      emit(ProfileError('Profile not found.'));
+    }
+  } catch (e) {
+    emit(ProfileError('Fetch failed: ${e.toString()}'));
   }
+}
+
 
   Future<void> deleteAccount(String uid) async {
     emit(ProfileLoading());

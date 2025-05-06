@@ -8,6 +8,7 @@ import 'package:unifind/features/auth/view/getstarted_screen.dart';
 import 'package:unifind/features/auth/view/login_screen.dart';
 import 'package:unifind/features/auth/view/signup_screen.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
+import 'package:unifind/features/item/view/reportItem_screen.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/data/profile_repository.dart';
 import 'package:unifind/features/profile/view/profile_screen.dart';
@@ -48,6 +49,7 @@ class UniFindApp extends StatelessWidget {
           '/signup': (context) => SignupScreen(),
           '/home': (context) => HomeScreen(),
           '/profile': (context) => ProfileScreen(),
+          '/report': (context) => ReportitemScreen(),
         },
         title: 'UniFind',
         theme: ThemeData.light().copyWith(

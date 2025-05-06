@@ -1,57 +1,20 @@
-/*import 'package:flutter/material.dart';
-
-class MyWidget extends StatefulWidget {
-  const MyWidget({super.key});
-
-  @override
-  State<MyWidget> createState() => _MyWidgetState();
-}
-
-class _MyWidgetState extends State<MyWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
-*/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:unifind/core/widgets/auth_button.dart';
 
-// Dummy ProfileCubit and State — replace with your actual implementation
-class ProfileState {}
-
-class ProfileInitial extends ProfileState {}
-
-class ProfileCubit extends Cubit<ProfileState> {
-  ProfileCubit() : super(ProfileInitial());
-}
-
-void main() {
-  runApp(
-    BlocProvider(
-      create: (context) => ProfileCubit(),
-      child: const MyApp(),
-    ),
-  );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class ReportitemScreen extends StatefulWidget {
+  const ReportitemScreen({super.key});
 
   @override
+  State<ReportitemScreen> createState() => _ReportitemScreenState();
+}
+
+class _ReportitemScreenState extends State<ReportitemScreen> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Found Something',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      home: const FoundSomethingScreen(),
-    );
+    return Scaffold(body: FoundSomethingScreen());
   }
 }
 
@@ -76,7 +39,7 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
     'Main Campus',
     'City Campus',
     'North Campus',
-    'West Campus'
+    'West Campus',
   ];
 
   final List<String> _toggleOptions = ['Lost', 'Found'];
@@ -99,7 +62,12 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
         children: [
           // Gradient App Bar
           Container(
-            padding: const EdgeInsets.only(top: 40, left: 16, right: 16, bottom: 16),
+            padding: const EdgeInsets.only(
+              top: 40,
+              left: 16,
+              right: 16,
+              bottom: 16,
+            ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFFFF5F6D), Color(0xFFFFAA5B)],
@@ -130,9 +98,15 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTextField(label: 'Item Name', controller: _itemController),
+                  _buildTextField(
+                    label: 'Item Name',
+                    controller: _itemController,
+                  ),
                   const SizedBox(height: 16),
-                  _buildTextField(label: 'Item Type', controller: _typeController),
+                  _buildTextField(
+                    label: 'Item Type',
+                    controller: _typeController,
+                  ),
                   const SizedBox(height: 16),
 
                   _buildDropdown(
@@ -153,10 +127,16 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
 
                   const SizedBox(height: 16),
 
-                  _buildTextField(label: 'Any mark on object', controller: _markController),
+                  _buildTextField(
+                    label: 'Any mark on object',
+                    controller: _markController,
+                  ),
                   const SizedBox(height: 16),
 
-                  const Text('Upload Photo (optional)', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const Text(
+                    'Upload Photo (optional)',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
                   const SizedBox(height: 8),
 
                   Row(
@@ -171,16 +151,21 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(8),
-                              image: _images[index] != null
-                                  ? DecorationImage(
-                                image: FileImage(_images[index]!),
-                                fit: BoxFit.cover,
-                              )
-                                  : null,
+                              image:
+                                  _images[index] != null
+                                      ? DecorationImage(
+                                        image: FileImage(_images[index]!),
+                                        fit: BoxFit.cover,
+                                      )
+                                      : null,
                             ),
-                            child: _images[index] == null
-                                ? Icon(Icons.camera_alt, color: Colors.grey[400])
-                                : null,
+                            child:
+                                _images[index] == null
+                                    ? Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.grey[400],
+                                    )
+                                    : null,
                           ),
                         ),
                       );
@@ -202,11 +187,16 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Submit', style: TextStyle(color: Colors.white)),
+                      child: const Text(
+                        'Submit',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -216,7 +206,10 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
     );
   }
 
-  Widget _buildTextField({required String label, required TextEditingController controller}) {
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -227,8 +220,14 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[100],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
           ),
         ),
       ],
@@ -256,7 +255,10 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
             value: value,
             decoration: const InputDecoration(border: InputBorder.none),
             isExpanded: true,
-            items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            items:
+                items
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
             onChanged: onChanged,
           ),
         ),
@@ -264,4 +266,3 @@ class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
     );
   }
 }
-
