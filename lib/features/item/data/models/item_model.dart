@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Item {
   final String itemId; // Firestore doc ID
@@ -11,7 +12,7 @@ class Item {
   final String imageUrl; // Image URL
   final String status;
   final DateTime date; // Date when it was lost/found
-  final DateTime time; // Time when it was lost/found
+  final TimeOfDay time; // Time when it was lost/found
 
   Item({
     required this.itemId,
@@ -39,7 +40,7 @@ class Item {
       category: data['category'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
-      time: (data['time'] as Timestamp).toDate(),
+      time: TimeOfDay.fromDateTime((data['time'] as Timestamp).toDate()),
       status: data['status'] ?? 'active',
     );
   }
@@ -55,7 +56,10 @@ class Item {
       'category': category,
       'imageUrl': imageUrl,
       'date': Timestamp.fromDate(date),
-      'time': Timestamp.fromDate(time),
+      'time': Timestamp.fromDate(
+        DateTime(date.year, date.month, date.day, time.hour, time.minute),
+      ),
+
       'status': status,
     };
   }

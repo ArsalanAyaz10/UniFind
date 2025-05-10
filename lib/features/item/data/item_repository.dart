@@ -2,14 +2,15 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 
-class DataRepository {
+class ItemRepository {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
   final FirebaseStorage _firebaseStorage;
 
-  DataRepository(this.firebaseAuth, this.firestore, this._firebaseStorage);
+  ItemRepository(this.firebaseAuth, this.firestore, this._firebaseStorage);
 
   Future<void> addItem({
     required String name,
@@ -18,7 +19,7 @@ class DataRepository {
     required String specificLocation,
     required String category,
     required DateTime date,
-    required DateTime time,
+    required TimeOfDay time,
     required File? imageFile,
   }) async {
     // Get current user ID
