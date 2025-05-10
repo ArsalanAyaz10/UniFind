@@ -23,10 +23,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     emit(AuthLoading());
     try {
       await authRepository.login(email, password);
@@ -46,4 +43,13 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> resetPassword({required String email}) async {
+    emit(AuthLoading());
+    try {
+      await authRepository.resetPassword(email);
+      emit(PasswordResetSuccess());
+    } catch (e) {
+      emit(AuthError('Password reset failed: ${e.toString()}'));
+    }
+  }
 }

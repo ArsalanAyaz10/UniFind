@@ -8,6 +8,7 @@ class AuthSuccess extends AuthState {} // signup or login succeeded.
 
 class AuthLoggedOut extends AuthState {} // for logout
 
+class PasswordResetSuccess extends AuthState {}
 
 //failure in sign up or login.
 class AuthError extends AuthState {

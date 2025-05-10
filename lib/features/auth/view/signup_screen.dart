@@ -104,7 +104,6 @@ class _SignUpUIState extends State<SignUpUI> {
                 style: TextStyle(fontSize: 20, color: Colors.black),
               ),
               const SizedBox(height: 10),
-
               Padding(
                 padding: const EdgeInsets.only(right: 20.0, left: 20),
                 child: Form(

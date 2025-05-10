@@ -1,268 +1,230 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:unifind/core/widgets/auth_button.dart';
 
-class ReportitemScreen extends StatefulWidget {
+class ReportitemScreen extends StatelessWidget {
   const ReportitemScreen({super.key});
 
   @override
-  State<ReportitemScreen> createState() => _ReportitemScreenState();
-}
-
-class _ReportitemScreenState extends State<ReportitemScreen> {
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(body: FoundSomethingScreen());
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFE96443), // reddish pink
+                Color(0xFFED6B47), // red-orange
+                Color(0xFFF0724B), // soft red-orange
+                Color(0xFFF37A4F), // peach-orange
+                Color(0xFFF68152), // orange
+                Color(0xFFF99856), // light orange
+                Color(0xFFF9B456), // lightest orange
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+      body: const ReportItemUI(),
+    );
   }
 }
 
-class FoundSomethingScreen extends StatefulWidget {
-  const FoundSomethingScreen({Key? key}) : super(key: key);
+class ReportItemUI extends StatefulWidget {
+  const ReportItemUI({super.key});
 
   @override
-  State<FoundSomethingScreen> createState() => _FoundSomethingScreenState();
+  State<ReportItemUI> createState() => _ReportItemUIState();
 }
 
-class _FoundSomethingScreenState extends State<FoundSomethingScreen> {
-  final List<File?> _images = [null, null, null];
-  bool _hasUploadedFirstImage = true;
+class _ReportItemUIState extends State<ReportItemUI> {
+  final _formKey = GlobalKey<FormState>();
   final _itemController = TextEditingController();
   final _typeController = TextEditingController();
   final _markController = TextEditingController();
 
   String? _selectedCampus;
-  String _selectedOption = 'Lost'; // Toggle option
-
+  final List<String> _toggleOptions = ['Lost', 'Found'];
+  int _selectedIndex = 0; // default to 'Lost'
   final List<String> _campuses = [
     'Main Campus',
     'City Campus',
     'North Campus',
     'West Campus',
   ];
-
-  final List<String> _toggleOptions = ['Lost', 'Found'];
-
-  Future<void> _pickImage(int index) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _images[index] = File(image.path);
-      });
-    }
+  @override
+  void dispose() {
+    _itemController.dispose();
+    _typeController.dispose();
+    _markController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Gradient App Bar
-          Container(
-            padding: const EdgeInsets.only(
-              top: 40,
-              left: 16,
-              right: 16,
-              bottom: 16,
-            ),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFFF5F6D), Color(0xFFFFAA5B)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-            child: Row(
-              children: const [
-                Icon(Icons.arrow_back, color: Colors.white),
-                SizedBox(width: 16),
-                Text(
-                  'FOUND SOMETHING',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: SafeArea(
+        child: Column(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0, left: 20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Report Item",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Please fill in the details below",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _itemController,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: "Item Title",
+                            prefixIcon: const Icon(Icons.account_circle_sharp),
+                            filled: true,
+                            fillColor: Color.fromARGB(255, 247, 248, 250),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter item title';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _typeController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Enter type of item",
+                            prefixIcon: const Icon(Icons.card_membership_sharp),
+                            filled: true,
+                            fillColor: const Color.fromARGB(255, 246, 246, 246),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select valid type';
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        DropdownButtonFormField<String>(
+                          value: _selectedCampus,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          isExpanded: true,
+                          hint: const Text('Select Campus'),
+                          items:
+                              _campuses.map((campus) {
+                                return DropdownMenuItem(
+                                  value: campus,
+                                  child: Text(campus),
+                                );
+                              }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCampus = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        ToggleButtons(
+                          isSelected: List.generate(
+                            _toggleOptions.length,
+                            (index) => index == _selectedIndex,
+                          ),
+                          onPressed: (index) {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          selectedColor: Colors.white,
+                          fillColor: Colors.deepOrange,
+                          color: Colors.deepOrange,
+                          children:
+                              _toggleOptions
+                                  .map(
+                                    (option) => SizedBox(
+                                      width: 120, // 👈 set fixed width here
+                                      child: Center(child: Text(option)),
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _typeController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Enter item Description",
+                            prefixIcon: const Icon(Icons.card_membership_sharp),
+                            filled: true,
+                            fillColor: const Color.fromARGB(255, 246, 246, 246),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter item description';
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        CustomButton(
+                          text: "Submit",
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {}
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-
-          // Form Content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTextField(
-                    label: 'Item Name',
-                    controller: _itemController,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    label: 'Item Type',
-                    controller: _typeController,
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildDropdown(
-                    label: 'Select Campus',
-                    value: _selectedCampus,
-                    items: _campuses,
-                    onChanged: (val) => setState(() => _selectedCampus = val),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _buildDropdown(
-                    label: 'Select Type',
-                    value: _selectedOption,
-                    items: _toggleOptions,
-                    onChanged: (val) => setState(() => _selectedOption = val!),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _buildTextField(
-                    label: 'Any mark on object',
-                    controller: _markController,
-                  ),
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    'Upload Photo (optional)',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: List.generate(3, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: GestureDetector(
-                          onTap: () => _pickImage(index),
-                          child: Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8),
-                              image:
-                                  _images[index] != null
-                                      ? DecorationImage(
-                                        image: FileImage(_images[index]!),
-                                        fit: BoxFit.cover,
-                                      )
-                                      : null,
-                            ),
-                            child:
-                                _images[index] == null
-                                    ? Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.grey[400],
-                                    )
-                                    : null,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Submit logic
-                        print('Item: ${_itemController.text}');
-                        print('Type: ${_typeController.text}');
-                        print('Campus: $_selectedCampus');
-                        print('Option: $_selectedOption');
-                        print('Mark: ${_markController.text}');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[100],
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required String? value,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: DropdownButtonFormField<String>(
-            value: value,
-            decoration: const InputDecoration(border: InputBorder.none),
-            isExpanded: true,
-            items:
-                items
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-            onChanged: onChanged,
-          ),
-        ),
-      ],
     );
   }
 }

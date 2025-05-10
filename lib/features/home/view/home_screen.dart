@@ -91,7 +91,8 @@ class HomeScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pop(context);
+                context.read<AuthCubit>().logout();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -130,14 +131,14 @@ class _HomeUIState extends State<HomeUI> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CustomButton(text: "Report Item", onPressed: () {}),
-          const SizedBox(height: 20),
           CustomButton(
-            text: "Browse Items",
+            text: "Report Item",
             onPressed: () {
               Navigator.pushNamed(context, '/report');
             },
           ),
+          const SizedBox(height: 20),
+          CustomButton(text: "Browse Items", onPressed: () {}),
         ],
       ),
     );
