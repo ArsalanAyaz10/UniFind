@@ -10,7 +10,7 @@ class ReportitemScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Report Item'),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -49,6 +49,8 @@ class _ReportItemUIState extends State<ReportItemUI> {
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  final ImagePicker _picker = ImagePicker();
+  List<XFile> _imageFiles = [];
 
   String? _selectedCampus;
   final List<String> _toggleOptions = ['Lost', 'Found'];
@@ -85,15 +87,6 @@ class _ReportItemUIState extends State<ReportItemUI> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        const SizedBox(height: 10),
-                        const Text(
-                          "Report Item",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ),
                         const SizedBox(height: 10),
                         const Text(
                           "Please fill in the details below",
@@ -218,6 +211,7 @@ class _ReportItemUIState extends State<ReportItemUI> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            //date picker button
                             Expanded(
                               child: OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
@@ -259,6 +253,7 @@ class _ReportItemUIState extends State<ReportItemUI> {
                               ),
                             ),
                             const SizedBox(width: 10),
+                            //time picker button
                             Expanded(
                               child: OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
@@ -297,6 +292,99 @@ class _ReportItemUIState extends State<ReportItemUI> {
                                   }
                                 },
                               ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final picked = await _picker.pickMultiImage();
+                                if (picked != null && picked.isNotEmpty) {
+                                  setState(() => _imageFiles.addAll(picked));
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.upload,
+                                color: Colors.deepOrange,
+                              ),
+                              label: const Text(
+                                'Add Photos',
+                                style: TextStyle(color: Colors.deepOrange),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                  horizontal: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                side: const BorderSide(
+                                  color: Colors.deepOrange,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child:
+                                  _imageFiles.isNotEmpty
+                                      ? SizedBox(
+                                        height: 80,
+                                        child: ListView.separated(
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: _imageFiles.length,
+                                          separatorBuilder:
+                                              (_, __) =>
+                                                  const SizedBox(width: 8),
+                                          itemBuilder: (context, index) {
+                                            final file = _imageFiles[index];
+                                            return Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  child: Image.file(
+                                                    File(file.path),
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap:
+                                                      () => setState(
+                                                        () => _imageFiles
+                                                            .removeAt(index),
+                                                      ),
+                                                  child: Container(
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.black54,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      )
+                                      : const Text(
+                                        'No photos',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
                             ),
                           ],
                         ),

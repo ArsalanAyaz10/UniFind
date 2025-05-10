@@ -1,50 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
-  final String ItemID;            // Firestore doc ID
-  final String title;         // Item name or title
-  final String description;   // Description of the item
-  final String imageUrl;      // Uploaded image URL
-  final String category;      // "Lost" or "Found"
-  final String location;      // Where it was lost/found
-  final DateTime datePosted;  // When it was posted
-  final String userId;        // UID of user who posted
+  final String itemId; // Firestore doc ID
+  final String userId; // UID of user who posted
+  final String name; // Item name
+  final String description; // Item description
+  final String campus; // Campus name
+  final String specificLocation; // Exact spot/location
+  final String category; // "Lost" or "Found"
+  final String imageUrl; // Image URL
+  final String status;
+  final DateTime date; // Date when it was lost/found
+  final DateTime time; // Time when it was lost/found
 
   Item({
-    required this.ItemID,
-    required this.title,
-    required this.description,
-    required this.imageUrl,
-    required this.category,
-    required this.location,
-    required this.datePosted,
+    required this.itemId,
     required this.userId,
+    required this.name,
+    required this.description,
+    required this.campus,
+    required this.specificLocation,
+    required this.category,
+    required this.imageUrl,
+    required this.date,
+    required this.time,
+    required this.status,
   });
 
   // Convert Firestore data to Item object
   factory Item.fromMap(String id, Map<String, dynamic> data) {
     return Item(
-      ItemID: id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      category: data['category'] ?? '',
-      location: data['location'] ?? '',
-      datePosted: (data['datePosted'] as Timestamp).toDate(),
+      itemId: id,
       userId: data['userId'] ?? '',
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      campus: data['campus'] ?? '',
+      specificLocation: data['specificLocation'] ?? '',
+      category: data['category'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      date: (data['date'] as Timestamp).toDate(),
+      time: (data['time'] as Timestamp).toDate(),
+      status: data['status'] ?? 'active',
     );
   }
 
   // Convert Item object to Firestore data
   Map<String, dynamic> toMap() {
     return {
-      'title': title,
-      'description': description,
-      'imageUrl': imageUrl,
-      'category': category,
-      'location': location,
-      'datePosted': Timestamp.fromDate(datePosted),
       'userId': userId,
+      'name': name,
+      'description': description,
+      'campus': campus,
+      'specificLocation': specificLocation,
+      'category': category,
+      'imageUrl': imageUrl,
+      'date': Timestamp.fromDate(date),
+      'time': Timestamp.fromDate(time),
+      'status': status,
     };
   }
 }
