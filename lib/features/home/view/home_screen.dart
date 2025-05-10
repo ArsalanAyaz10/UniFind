@@ -6,8 +6,19 @@ import 'package:unifind/features/auth/bloc/auth_state.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProfileCubit>().fetchProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,31 +51,37 @@ class HomeScreen extends StatelessWidget {
               builder: (context, state) {
                 String name = 'Loading...';
                 String email = '';
+                String? profilePicUrl;
 
                 if (state is ProfileLoaded) {
                   name = state.user.name;
-                  email = state.user.email;
+                  email = state.user.email ?? '';
+                  profilePicUrl = state.user.photoUrl;
                 } else if (state is ProfileError) {
                   name = 'Error';
                   email = '';
                 }
-
                 return UserAccountsDrawerHeader(
                   accountName: Text(name),
                   accountEmail: Text(email),
                   currentAccountPicture: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/profile.jpg'),
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage:
+                        profilePicUrl != null
+                            ? NetworkImage(profilePicUrl)
+                            : const AssetImage('assets/images/profile.jpg')
+                                as ImageProvider,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFFE96443), // reddish pink
-                        Color(0xFFED6B47), // red-orange
-                        Color(0xFFF0724B), // soft red-orange
-                        Color(0xFFF37A4F), // peach-orange
-                        Color(0xFFF68152), // orange
-                        Color(0xFFF99856), // light orange
-                        Color(0xFFF9B456), // lightest orange
+                        Color(0xFFE96443),
+                        Color(0xFFED6B47),
+                        Color(0xFFF0724B),
+                        Color(0xFFF37A4F),
+                        Color(0xFFF68152),
+                        Color(0xFFF99856),
+                        Color(0xFFF9B456),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -73,6 +90,7 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
+
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),

@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:unifind/core/models/user_model.dart';
 
 class ProfileRepository {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
+  final FirebaseStorage _firebaseStorage;
 
-  ProfileRepository(this.firebaseAuth, this.firestore);
+  ProfileRepository(this.firebaseAuth, this.firestore, this._firebaseStorage);
 
   Future<void> deleteAccount(String uid) async {
     try {
@@ -30,10 +34,20 @@ class ProfileRepository {
       if (docSnapshot.exists) {
         final data = docSnapshot.data();
         if (data != null) {
-          return AppUser.fromMap(uid, data);
+          // Fetch profile picture URL from Firebase Storage
+          String? profilePictureUrl;
+          try {
+            final storageRef = _firebaseStorage.ref().child('profile_pictures/$uid.jpg');
+            profilePictureUrl = await storageRef.getDownloadURL();
+          } catch (e) {
+            profilePictureUrl = null; // Handle if the profile picture doesn't exist
+          }
+
+          // Add the URL to the user data
+          return AppUser.fromMap(uid, data)..photoUrl = profilePictureUrl;
         }
       }
-      return null; // user not found
+      return null; // User not found
     } catch (e) {
       throw Exception('Failed to fetch profile: $e');
     }
@@ -54,5 +68,20 @@ class ProfileRepository {
     if (updates.isNotEmpty) {
       await firestore.collection('users').doc(uid).update(updates);
     }
+  }
+
+  Future<String> uploadProfilePicture(String uid, File imageFile) async {
+    final storageRef = _firebaseStorage.ref().child(
+      'profile_pictures/$uid.jpg',
+    );
+    final uploadTask = await storageRef.putFile(imageFile);
+    final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+    // Update Firestore with the new URL
+    await firestore.collection('users').doc(uid).update({
+      'profilePicUrl': downloadUrl,
+    });
+
+    return downloadUrl;
   }
 }

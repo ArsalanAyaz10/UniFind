@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:unifind/core/models/user_model.dart';
 import 'profile_state.dart';
@@ -7,7 +9,6 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepository profileRepository;
 
   ProfileCubit(this.profileRepository) : super(ProfileInitial());
-
 Future<void> fetchProfile() async {
   emit(ProfileLoading());
   try {
@@ -21,7 +22,7 @@ Future<void> fetchProfile() async {
 
     AppUser? userProfile = await profileRepository.fetchProfile(uid);
     if (userProfile != null) {
-      emit(ProfileLoaded(userProfile));
+      emit(ProfileLoaded(userProfile)); // The user profile now includes the profile picture URL
     } else {
       emit(ProfileError('Profile not found.'));
     }
@@ -29,7 +30,6 @@ Future<void> fetchProfile() async {
     emit(ProfileError('Fetch failed: ${e.toString()}'));
   }
 }
-
 
   Future<void> deleteAccount(String uid) async {
     emit(ProfileLoading());
@@ -67,4 +67,16 @@ Future<void> fetchProfile() async {
       emit(ProfileError('Update failed: ${e.toString()}'));
     }
   }
+
+  Future<void> uploadProfilePicture(File imageFile) async {
+  emit(ProfileLoading());
+  try {
+    final uid = profileRepository.firebaseAuth.currentUser!.uid;
+    final url = await profileRepository.uploadProfilePicture(uid, imageFile);
+    emit(ProfilePictureUpdated(url));
+  } catch (e) {
+    emit(ProfileError('Failed to upload profile picture: ${e.toString()}'));
+  }
+}
+
 }

@@ -4,7 +4,7 @@ class AppUser {
   final String? program;
   final int? studentId;
   final String email;
-  final String? photoUrl;
+  late String? photoUrl;
 
   AppUser({
     required this.name,

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:unifind/core/widgets/auth_button.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
@@ -42,12 +44,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               builder: (_) => const Center(child: CircularProgressIndicator()),
             );
           } else if (state is ProfileSuccess) {
-            Navigator.of(context, rootNavigator: true).pop();
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pop(); // Close the loader
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Profile Loaded Successfully")),
             );
           } else if (state is ProfileError) {
-            Navigator.of(context, rootNavigator: true).pop();
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pop(); // Close the loader
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -72,6 +80,42 @@ class _ProfileBodyState extends State<ProfileBody> {
   final TextEditingController _programController = TextEditingController();
   final TextEditingController _stuIDController = TextEditingController();
 
+  String? _profileImageUrl;
+  bool _isUploadingImage = false;
+
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _isUploadingImage = true;
+      });
+
+      final imageFile = File(pickedFile.path);
+      try {
+        // Upload and get URL via Cubit
+        await context.read<ProfileCubit>().uploadProfilePicture(imageFile);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image upload failed: ${e.toString()}")),
+        );
+      } finally {
+        setState(() {
+          _isUploadingImage = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _programController.dispose();
+    _stuIDController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -81,10 +125,41 @@ class _ProfileBodyState extends State<ProfileBody> {
         child: ListView(
           children: [
             Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[200],
-                child: const Icon(Icons.person, size: 60, color: Colors.grey),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(
+                    child: BlocBuilder<ProfileCubit, ProfileState>(
+                      builder: (context, state) {
+                        if (state is ProfileLoaded) {
+                          _usernameController.text = state.user.name;
+                          _programController.text = state.user.program!;
+                          _stuIDController.text =
+                              state.user.studentId.toString();
+
+                          // If the profile picture URL exists, show the image, otherwise show a default icon
+                          return CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.grey[200],
+                            backgroundImage:
+                                state.user.photoUrl != null
+                                    ? NetworkImage(state.user.photoUrl!)
+                                    : const AssetImage(
+                                          'assets/default_avatar.png',
+                                        )
+                                        as ImageProvider,
+                          );
+                        }
+                        return const Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.grey,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
               ),
             ),
             const SizedBox(height: 30),
@@ -93,7 +168,8 @@ class _ProfileBodyState extends State<ProfileBody> {
                 if (state is ProfileLoaded) {
                   _usernameController.text = state.user.name ?? '';
                   _programController.text = state.user.program ?? '';
-                  _stuIDController.text = state.user.studentId.toString();
+                  _stuIDController.text =
+                      state.user.studentId?.toString() ?? '';
                 }
                 return Column(
                   children: [
@@ -101,7 +177,7 @@ class _ProfileBodyState extends State<ProfileBody> {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         labelText: "Enter Your Full Name",
-                        prefixIcon: const Icon(Icons.password_rounded),
+                        prefixIcon: const Icon(Icons.person),
                         filled: true,
                         fillColor: const Color.fromARGB(255, 246, 246, 246),
                         border: OutlineInputBorder(
@@ -120,7 +196,7 @@ class _ProfileBodyState extends State<ProfileBody> {
                       controller: _programController,
                       decoration: InputDecoration(
                         labelText: "Enter Your Program",
-                        prefixIcon: const Icon(Icons.password_rounded),
+                        prefixIcon: const Icon(Icons.school),
                         filled: true,
                         fillColor: const Color.fromARGB(255, 246, 246, 246),
                         border: OutlineInputBorder(
