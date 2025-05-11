@@ -6,9 +6,14 @@ import 'package:unifind/core/widgets/auth_button.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
 
-class ReportitemScreen extends StatelessWidget {
+class ReportitemScreen extends StatefulWidget {
   const ReportitemScreen({super.key});
 
+  @override
+  State<ReportitemScreen> createState() => _ReportitemScreenState();
+}
+
+class _ReportitemScreenState extends State<ReportitemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
