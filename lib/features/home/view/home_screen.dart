@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/core/widgets/auth_button.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/auth/bloc/auth_state.dart';
+import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
@@ -156,7 +157,12 @@ class _HomeUIState extends State<HomeUI> {
             },
           ),
           const SizedBox(height: 20),
-          CustomButton(text: "Browse Items", onPressed: () {}),
+          CustomButton(
+            text: "Browse Items",
+            onPressed: () {
+              Navigator.pushNamed(context, '/display');
+            },
+          ),
         ],
       ),
     );

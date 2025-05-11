@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
+import 'dart:io';
 
 class ItemRepository {
   final FirebaseAuth firebaseAuth;
@@ -60,4 +61,23 @@ class ItemRepository {
     // Set the document with generated ID
     await docRef.set(item.toMap());
   }
+
+Future<List<Item>> fetchItems() async {
+  try {
+    final querySnapshot = await firestore
+        .collection('items')
+        .orderBy('date', descending: true)
+        .get();
+
+    List<Item> items = querySnapshot.docs.map((doc) {
+      return Item.fromMap(doc.id, doc.data());
+    }).toList();
+
+    return items;
+  } catch (e) {
+    throw Exception('Failed to fetch items: $e');
+  }
+}
+
+  
 }

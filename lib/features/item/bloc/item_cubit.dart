@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
 import 'package:unifind/features/item/data/item_repository.dart';
+import 'package:unifind/features/item/data/models/item_model.dart';
 
 class ItemCubit extends Cubit<ItemState> {
   final ItemRepository itemRepository;
@@ -35,6 +36,17 @@ class ItemCubit extends Cubit<ItemState> {
       emit(ItemSuccess());
     } catch (e) {
       emit(ItemError(e.toString()));
+    }
+  }
+
+    Future<void> fetchItems() async {
+    emit(ItemLoading());
+
+    try {
+      final List<Item> items = await itemRepository.fetchItems();
+      emit(ItemsLoaded(items));
+    } catch (e) {
+      emit(ItemError('Failed to load items: ${e.toString()}'));
     }
   }
 }

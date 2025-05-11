@@ -6,9 +6,10 @@ import 'package:unifind/core/widgets/auth_button.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
+import 'package:unifind/features/item/view/widgets/categoryScroll.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
-
+import 'package:unifind/features/item/data/models/item_model.dart';
 
 class ItemdisplayScreen extends StatefulWidget {
   const ItemdisplayScreen({super.key});
@@ -19,9 +20,15 @@ class ItemdisplayScreen extends StatefulWidget {
 
 class _ItemdisplayScreenState extends State<ItemdisplayScreen> {
   @override
+  void initState() {
+    super.initState();
+    context.read<ItemCubit>().fetchItems(); // Trigger fetch
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(
+      appBar: AppBar(
         title: const Text('Report Item'),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -64,13 +71,12 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen> {
                   accountEmail: Text(email),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.grey[200],
-                    backgroundImage:
-                        profilePicUrl != null
-                            ? NetworkImage(profilePicUrl)
-                            : const AssetImage('assets/images/profile.jpg')
-                                as ImageProvider,
+                    backgroundImage: profilePicUrl != null
+                        ? NetworkImage(profilePicUrl)
+                        : const AssetImage('assets/images/profile.jpg')
+                            as ImageProvider,
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
                         Color(0xFFE96443),
@@ -88,7 +94,6 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen> {
                 );
               },
             ),
-
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
@@ -114,7 +119,50 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen> {
           ],
         ),
       ),
-      
+      body: BlocListener<ItemCubit, ItemState>(
+        listener: (context, state) {
+          if (state is ItemError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        child: BlocBuilder<ItemCubit, ItemState>(
+          builder: (context, state) {
+            if (state is ItemLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is ItemsLoaded) {
+              final List<Item> items = state.items;
+              if (items.isEmpty) {
+                return const Center(child: Text("No items found."));
+              }
+              return ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return LostFoundItemCard(
+                    imageUrl: item.imageUrl,
+                    name: item.name,
+                    description: item.description,
+                    campus: item.campus,
+                    specificLocation: item.specificLocation,
+                    category: item.category,
+                    date:
+                        '${item.date.year}-${item.date.month.toString().padLeft(2, '0')}-${item.date.day.toString().padLeft(2, '0')}',
+                    time:
+                        '${item.time.hourOfPeriod}:${item.time.minute.toString().padLeft(2, '0')} ${item.time.period.name.toUpperCase()}',
+                    onTap: () {
+                      // Navigate to detail page or show dialog
+                    },
+                  );
+                },
+              );
+            } else {
+              return const Center(child: Text("Something went wrong."));
+            }
+          },
+        ),
+      ),
     );
   }
 }
