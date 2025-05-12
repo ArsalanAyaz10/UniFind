@@ -39,7 +39,7 @@ class ItemCubit extends Cubit<ItemState> {
     }
   }
 
-    Future<void> fetchItems() async {
+  Future<void> fetchItems() async {
     emit(ItemLoading());
 
     try {
@@ -47,6 +47,17 @@ class ItemCubit extends Cubit<ItemState> {
       emit(ItemsLoaded(items));
     } catch (e) {
       emit(ItemError('Failed to load items: ${e.toString()}'));
+    }
+  }
+
+  Future<void> fetchItemById(String id) async {
+    emit(ItemLoading());
+
+    try {
+      final Item item = await itemRepository.getItemById(id);
+      emit(ItemLoaded(item));
+    } catch (e) {
+      emit(ItemError('Failed to fetch item: ${e.toString()}'));
     }
   }
 }

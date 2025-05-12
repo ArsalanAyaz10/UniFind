@@ -62,22 +62,46 @@ class ItemRepository {
     await docRef.set(item.toMap());
   }
 
-Future<List<Item>> fetchItems() async {
-  try {
-    final querySnapshot = await firestore
-        .collection('items')
-        .orderBy('date', descending: true)
-        .get();
+  Future<List<Item>> fetchItems() async {
+    try {
+      final querySnapshot =
+          await firestore
+              .collection('items')
+              .orderBy('date', descending: true)
+              .get();
 
-    List<Item> items = querySnapshot.docs.map((doc) {
-      return Item.fromMap(doc.id, doc.data());
-    }).toList();
+      List<Item> items =
+          querySnapshot.docs.map((doc) {
+            return Item.fromMap(doc.id, doc.data());
+          }).toList();
 
-    return items;
-  } catch (e) {
-    throw Exception('Failed to fetch items: $e');
+      return items;
+    } catch (e) {
+      throw Exception('Failed to fetch items: $e');
+    }
   }
-}
 
-  
+  Future<Item> getItemById(String itemId) async {
+    try {
+      final docSnapshot = await firestore.collection('items').doc(itemId).get();
+
+      if (!docSnapshot.exists) {
+        throw Exception('Item not found');
+      }
+
+      return Item.fromMap(docSnapshot.id, docSnapshot.data()!);
+    } catch (e) {
+      throw Exception('Failed to fetch item by ID: $e');
+    }
+  }
+
+  Future<void> updateItemStatus(String itemId, String status) async {
+    try {
+      await firestore.collection('items').doc(itemId).update({
+        'status': status,
+      });
+    } catch (e) {
+      throw Exception('Failed to update item status: $e');
+    }
+  }
 }

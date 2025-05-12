@@ -11,6 +11,7 @@ import 'package:unifind/features/auth/view/signup_screen.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart'; // Import the ItemCubit
 import 'package:unifind/features/item/data/item_repository.dart'; // Import the ItemRepository
+import 'package:unifind/features/item/view/itemDetail_screen.dart';
 import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/item/view/reportItem_screen.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
@@ -66,6 +67,7 @@ class UniFindApp extends StatelessWidget {
           '/profile': (context) => ProfileScreen(),
           '/report': (context) => ReportitemScreen(),
           '/display': (context) => ItemdisplayScreen(),
+          //'/displaydetail': (context) => ItemdetailScreen(itemId: ''),
         },
         title: 'UniFind',
         theme: ThemeData.light().copyWith(
