@@ -37,10 +37,13 @@ class ProfileRepository {
           // Fetch profile picture URL from Firebase Storage
           String? profilePictureUrl;
           try {
-            final storageRef = _firebaseStorage.ref().child('profile_pictures/$uid.jpg');
+            final storageRef = _firebaseStorage.ref().child(
+              'profile_pictures/$uid.jpg',
+            );
             profilePictureUrl = await storageRef.getDownloadURL();
           } catch (e) {
-            profilePictureUrl = null; // Handle if the profile picture doesn't exist
+            profilePictureUrl =
+                null; // Handle if the profile picture doesn't exist
           }
 
           // Add the URL to the user data
@@ -50,6 +53,33 @@ class ProfileRepository {
       return null; // User not found
     } catch (e) {
       throw Exception('Failed to fetch profile: $e');
+    }
+  }
+
+  Future<AppUser> getUserById(String uid) async {
+    try {
+      final docSnapshot = await firestore.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        if (data != null) {
+          String? profilePictureUrl;
+
+          try {
+            final storageRef = _firebaseStorage.ref().child(
+              'profile_pictures/$uid.jpg',
+            );
+            profilePictureUrl = await storageRef.getDownloadURL();
+          } catch (_) {
+            profilePictureUrl = null;
+          }
+
+          return AppUser.fromMap(uid, data)..photoUrl = profilePictureUrl;
+        }
+      }
+      throw Exception('User not found');
+    } catch (e) {
+      throw Exception('Failed to get user by ID: $e');
     }
   }
 

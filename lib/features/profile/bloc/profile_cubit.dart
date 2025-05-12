@@ -9,27 +9,29 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepository profileRepository;
 
   ProfileCubit(this.profileRepository) : super(ProfileInitial());
-Future<void> fetchProfile() async {
-  emit(ProfileLoading());
-  try {
-    final user = profileRepository.firebaseAuth.currentUser;
-    final uid = user?.uid;
+  Future<void> fetchProfile() async {
+    emit(ProfileLoading());
+    try {
+      final user = profileRepository.firebaseAuth.currentUser;
+      final uid = user?.uid;
 
-    if (uid == null) {
-      emit(ProfileError('No user is currently logged in.'));
-      return;
-    }
+      if (uid == null) {
+        emit(ProfileError('No user is currently logged in.'));
+        return;
+      }
 
-    AppUser? userProfile = await profileRepository.fetchProfile(uid);
-    if (userProfile != null) {
-      emit(ProfileLoaded(userProfile)); // The user profile now includes the profile picture URL
-    } else {
-      emit(ProfileError('Profile not found.'));
+      AppUser? userProfile = await profileRepository.fetchProfile(uid);
+      if (userProfile != null) {
+        emit(
+          ProfileLoaded(userProfile),
+        ); // The user profile now includes the profile picture URL
+      } else {
+        emit(ProfileError('Profile not found.'));
+      }
+    } catch (e) {
+      emit(ProfileError('Fetch failed: ${e.toString()}'));
     }
-  } catch (e) {
-    emit(ProfileError('Fetch failed: ${e.toString()}'));
   }
-}
 
   Future<void> deleteAccount(String uid) async {
     emit(ProfileLoading());
@@ -69,14 +71,25 @@ Future<void> fetchProfile() async {
   }
 
   Future<void> uploadProfilePicture(File imageFile) async {
-  emit(ProfileLoading());
-  try {
-    final uid = profileRepository.firebaseAuth.currentUser!.uid;
-    final url = await profileRepository.uploadProfilePicture(uid, imageFile);
-    emit(ProfilePictureUpdated(url));
-  } catch (e) {
-    emit(ProfileError('Failed to upload profile picture: ${e.toString()}'));
+    emit(ProfileLoading());
+    try {
+      final uid = profileRepository.firebaseAuth.currentUser!.uid;
+      final url = await profileRepository.uploadProfilePicture(uid, imageFile);
+      emit(ProfilePictureUpdated(url));
+    } catch (e) {
+      emit(ProfileError('Failed to upload profile picture: ${e.toString()}'));
+    }
   }
-}
 
+  Future<void> fetchUserById(String userId) async {
+    try {
+      emit(ProfileLoading());
+      final user = await profileRepository.getUserById(
+        userId,
+      ); // implement this in repo
+      emit(ProfileLoaded(user));
+    } catch (e) {
+      emit(ProfileError('Failed to load user'));
+    }
+  }
 }
