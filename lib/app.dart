@@ -9,8 +9,8 @@ import 'package:unifind/features/auth/view/getstarted_screen.dart';
 import 'package:unifind/features/auth/view/login_screen.dart';
 import 'package:unifind/features/auth/view/signup_screen.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
-import 'package:unifind/features/item/bloc/item_cubit.dart'; // Import the ItemCubit
-import 'package:unifind/features/item/data/item_repository.dart'; // Import the ItemRepository
+import 'package:unifind/features/item/bloc/item_cubit.dart'; 
+import 'package:unifind/features/item/data/item_repository.dart'; 
 import 'package:unifind/features/item/view/itemDetail_screen.dart';
 import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/item/view/reportItem_screen.dart';
@@ -26,7 +26,7 @@ class UniFindApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Provide FirebaseAuth and AuthRepository
+        
         BlocProvider<AuthCubit>(
           create:
               (_) => AuthCubit(
