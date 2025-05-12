@@ -80,8 +80,8 @@ class _LoginUIState extends State<LoginUI> {
             children: [
               const Center(
                 child: Image(
-                  image: NetworkImage(
-                    "https://st.depositphotos.com/2274151/3518/i/950/depositphotos_35186549-stock-photo-sample-grunge-red-round-stamp.jpg",
+                  image: AssetImage(
+                    'assets/Images/logo.png',
                   ),
                   filterQuality: FilterQuality.high,
                   fit: BoxFit.cover,
