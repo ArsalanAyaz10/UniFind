@@ -89,9 +89,7 @@ class _SignUpUIState extends State<SignUpUI> {
             children: [
               const Center(
                 child: Image(
-                  image: AssetImage(
-                    'assets/Images/logo.png',
-                  ),
+                  image: AssetImage('assets/animations/Images/logo.png'),
                   filterQuality: FilterQuality.high,
                   fit: BoxFit.cover,
                   height: 180,

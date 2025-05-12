@@ -81,7 +81,7 @@ class _LoginUIState extends State<LoginUI> {
               const Center(
                 child: Image(
                   image: AssetImage(
-                    'assets/Images/logo.png',
+                    'assets/animations/Images/logo.png',
                   ),
                   filterQuality: FilterQuality.high,
                   fit: BoxFit.cover,
