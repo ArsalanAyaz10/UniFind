@@ -241,10 +241,15 @@ class _ItemBuilderUIState extends State<ItemBuilderUI> {
                                 campus: item.campus,
                                 category: item.category,
                                 onTap: () {
-                                  Navigator.pushNamed(
+                                  Navigator.push(
                                     context,
-                                    '/displaydetail',
-                                    arguments: item.itemId,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ItemdetailScreen(
+                                            item: item,
+                                            itemId: item.itemId,
+                                          ),
+                                    ),
                                   );
                                   print(
                                     "the item id: ${item.itemId.toString()}",
