@@ -1,6 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'auth_state.dart';
 import '../data/auth_repository.dart';
 
@@ -51,5 +49,9 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(AuthError('Password reset failed: ${e.toString()}'));
     }
+  }
+
+    String? getCurrentUserId() {
+    return authRepository.firebaseAuth.currentUser?.uid;
   }
 }

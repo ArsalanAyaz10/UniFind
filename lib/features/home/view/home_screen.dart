@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:unifind/core/widgets/auth_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:unifind/core/widgets/action_card.dart';
+import 'package:unifind/core/widgets/custom_drawer.dart';
+import 'package:unifind/core/widgets/stat_card.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/auth/bloc/auth_state.dart';
-import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/profile/bloc/profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
@@ -24,99 +26,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Home'),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFE96443), // reddish pink
-                Color(0xFFED6B47), // red-orange
-                Color(0xFFF0724B), // soft red-orange
-                Color(0xFFF37A4F), // peach-orange
-                Color(0xFFF68152), // orange
-                Color(0xFFF99856), // light orange
-                Color(0xFFF9B456), // lightest orange
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+        title: const Text(
+          'UniFinder',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
           ),
         ),
+        backgroundColor: Color.fromRGBO(12, 77, 161, 1).withOpacity(0.8),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_outlined, color: Colors.white),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Notifications will be implemented here'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            BlocBuilder<ProfileCubit, ProfileState>(
-              builder: (context, state) {
-                String name = 'Loading...';
-                String email = '';
-                String? profilePicUrl;
-
-                if (state is ProfileLoaded) {
-                  name = state.user.name;
-                  email = state.user.email ?? '';
-                  profilePicUrl = state.user.photoUrl;
-                } else if (state is ProfileError) {
-                  name = 'Error';
-                  email = '';
-                }
-                return UserAccountsDrawerHeader(
-                  accountName: Text(name),
-                  accountEmail: Text(email),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage:
-                        profilePicUrl != null
-                            ? NetworkImage(profilePicUrl)
-                            : const AssetImage('assets/images/profile.jpg')
-                                as ImageProvider,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFE96443),
-                        Color(0xFFED6B47),
-                        Color(0xFFF0724B),
-                        Color(0xFFF37A4F),
-                        Color(0xFFF68152),
-                        Color(0xFFF99856),
-                        Color(0xFFF9B456),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                context.read<AuthCubit>().logout();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: ModernDrawer(context),
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthLoggedOut) {
@@ -124,46 +61,197 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
             ).pushNamedAndRemoveUntil('/login', (route) => false);
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.message,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: Colors.red.shade700,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
         },
-        child: HomeUI(),
+        child: ModernHomeUI(),
       ),
     );
   }
 }
 
-class HomeUI extends StatefulWidget {
-  const HomeUI({super.key});
+class ModernHomeUI extends StatelessWidget {
+  const ModernHomeUI({super.key});
 
-  @override
-  State<HomeUI> createState() => _HomeUIState();
-}
-
-class _HomeUIState extends State<HomeUI> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CustomButton(
-            text: "Report Item",
-            onPressed: () {
-              Navigator.pushNamed(context, '/report');
-            },
-          ),
-          const SizedBox(height: 20),
-          CustomButton(
-            text: "Browse Items",
-            onPressed: () {
-              Navigator.pushNamed(context, '/display');
-            },
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.fromRGBO(12, 77, 161, 1),
+            Color.fromRGBO(28, 93, 177, 1),
+            Color.fromRGBO(41, 121, 209, 1),
+            Color.fromRGBO(64, 144, 227, 1),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Welcome section
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BlocBuilder<ProfileCubit, ProfileState>(
+                    builder: (context, state) {
+                      String name = 'there';
+                      if (state is ProfileLoaded) {
+                        name = state.user.name.split(' ')[0]; // Get first name
+                      }
+                      return Text(
+                        "Hello, $name!",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ).animate().fadeIn(duration: 600.ms);
+                    },
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "What would you like to do today?",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ).animate().fadeIn(delay: 200.ms, duration: 600.ms),
+                ],
+              ),
+            ),
+
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Report Item Card
+                      ActionCard(
+                            context,
+                            title: "Report Item",
+                            description:
+                                "Lost or found something? Report it here.",
+                            icon: Icons.add_circle_outline,
+                            onTap: () {
+                              Navigator.pushNamed(context, '/report');
+                            },
+                          )
+                          .animate(delay: 400.ms)
+                          .fadeIn(duration: 800.ms)
+                          .slideY(begin: 0.2, end: 0, duration: 800.ms),
+
+                      SizedBox(height: 20),
+
+                      // Browse Items Card
+                      ActionCard(
+                            context,
+                            title: "Browse Items",
+                            description: "View lost and found items on campus.",
+                            icon: Icons.search,
+                            onTap: () {
+                              Navigator.pushNamed(context, '/display');
+                            },
+                          )
+                          .animate(delay: 600.ms)
+                          .fadeIn(duration: 800.ms)
+                          .slideY(begin: 0.2, end: 0, duration: 800.ms),
+
+                      SizedBox(height: 20),
+
+                      // My Items Card
+                      ActionCard(
+                            context,
+                            title: "My Items",
+                            description:
+                                "View items you've reported or claimed.",
+                            icon: Icons.inventory_2_outlined,
+                            onTap: () {
+                              Navigator.pushNamed(context, '/my-items');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'My Items feature coming soon!',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                          )
+                          .animate(delay: 800.ms)
+                          .fadeIn(duration: 800.ms)
+                          .slideY(begin: 0.2, end: 0, duration: 800.ms),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Quick stats section
+            Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Quick Stats",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ).animate().fadeIn(delay: 1000.ms, duration: 600.ms),
+
+                  SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      StatCard(
+                        title: "Lost Items",
+                        value: "24",
+                        icon: Icons.search,
+                        color: Colors.red.withOpacity(0.8),
+                      ),
+                      SizedBox(width: 16),
+                      StatCard(
+                        title: "Found Items",
+                        value: "18",
+                        icon: Icons.check_circle_outline,
+                        color: Colors.green.withOpacity(0.8),
+                      ),
+                      SizedBox(width: 16),
+                      StatCard(
+                        title: "Claimed",
+                        value: "12",
+                        icon: Icons.handshake_outlined,
+                        color: Colors.amber.withOpacity(0.8),
+                      ),
+                    ],
+                  ).animate().fadeIn(delay: 1200.ms, duration: 600.ms),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

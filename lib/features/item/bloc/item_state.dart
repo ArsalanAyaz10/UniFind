@@ -1,4 +1,3 @@
-import 'package:unifind/core/models/user_model.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 
 abstract class ItemState {}

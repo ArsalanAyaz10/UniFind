@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:unifind/core/widgets/auth_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:unifind/core/widgets/custom_drawer.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
@@ -20,122 +21,104 @@ class _ReportitemScreenState extends State<ReportitemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Report Item'),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFE96443),
-                Color(0xFFED6B47),
-                Color(0xFFF0724B),
-                Color(0xFFF37A4F),
-                Color(0xFFF68152),
-                Color(0xFFF99856),
-                Color(0xFFF9B456),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        title: const Text(
+          'Report Item',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Color.fromRGBO(12, 77, 161, 1).withOpacity(0.8),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      drawer: ModernDrawer(context),
+      body: Stack(
+        children: [
+          // Background gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromRGBO(12, 77, 161, 1),
+                  Color.fromRGBO(28, 93, 177, 1),
+                  Color.fromRGBO(41, 121, 209, 1),
+                  Color.fromRGBO(64, 144, 227, 1),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            BlocBuilder<ProfileCubit, ProfileState>(
-              builder: (context, state) {
-                String name = 'Loading...';
-                String email = '';
-                String? profilePicUrl;
 
-                if (state is ProfileLoaded) {
-                  name = state.user.name;
-                  email = state.user.email ?? '';
-                  profilePicUrl = state.user.photoUrl;
-                } else if (state is ProfileError) {
-                  name = 'Error';
-                  email = '';
-                }
-                return UserAccountsDrawerHeader(
-                  accountName: Text(name),
-                  accountEmail: Text(email),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage:
-                        profilePicUrl != null
-                            ? NetworkImage(profilePicUrl)
-                            : const AssetImage('assets/images/profile.jpg')
-                                as ImageProvider,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFE96443),
-                        Color(0xFFED6B47),
-                        Color(0xFFF0724B),
-                        Color(0xFFF37A4F),
-                        Color(0xFFF68152),
-                        Color(0xFFF99856),
-                        Color(0xFFF9B456),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+          // Main content
+          BlocConsumer<ItemCubit, ItemState>(
+            listener: (context, state) {
+              if (state is ItemLoaded) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Report submitted successfully!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                    backgroundColor: Colors.green.shade700,
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
-              },
-            ),
+              } else if (state is ItemError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Error: ${state.message}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor: Colors.red.shade700,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              return Stack(
+                children: [
+                  // Report form
+                  const ReportItemUI(),
 
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                context.read<AuthCubit>().logout();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      ),
-      body: BlocListener<ItemCubit, ItemState>(
-        listener: (context, state) {
-          if (state is ItemLoading) {
-            // Show loading indicator
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => const Center(child: CircularProgressIndicator()),
-            );
-          } else if (state is ItemLoaded) {
-            // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Report submitted successfully!')),
-            );
-          } else if (state is ItemError) {
-            // Show error message
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
-          }
-        },
-        child:
-            const ReportItemUI(), // This is where ReportItemUI is now inside BlocListener
+                  // Loading overlay - only show when ItemLoading state is active
+                  if (state is ItemLoading)
+                    Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              "Uploading report...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -175,338 +158,616 @@ class _ReportItemUIState extends State<ReportItemUI> {
     _itemNameController.clear();
     _itemDescriptionController.clear();
     _itemLocationController.clear();
+    setState(() {
+      _selectedDate = null;
+      _selectedTime = null;
+      _imageFiles = [];
+      _selectedCampus = null;
+      _selectedIndex = 0;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
       child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Please fill in the details below",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _itemNameController,
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        labelText: "Item Name",
-                        prefixIcon: const Icon(Icons.account_circle_sharp),
-                        filled: true,
-                        fillColor: Color(0xFFF7F8FA),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              // Header
+              Text(
+                "Report Lost or Found Item",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ).animate().fadeIn(duration: 600.ms),
+
+              SizedBox(height: 10),
+
+              Text(
+                "Please fill in the details below",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ).animate().fadeIn(delay: 200.ms, duration: 600.ms),
+
+              SizedBox(height: 20),
+
+              // Form Container
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Item Type Toggle
+                      Text(
+                        "Item Status",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter item title';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _itemDescriptionController,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        labelText: "Enter Description",
-                        prefixIcon: const Icon(Icons.description),
-                        filled: true,
-                        fillColor: Color(0xFFF6F6F6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+
+                      SizedBox(height: 10),
+
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter description';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedCampus,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      isExpanded: true,
-                      hint: const Text('Select Campus'),
-                      items:
-                          _campuses.map((campus) {
-                            return DropdownMenuItem(
-                              value: campus,
-                              child: Text(campus),
-                            );
-                          }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedCampus = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _itemLocationController,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        labelText: "Enter Specific Location",
-                        prefixIcon: const Icon(Icons.location_on),
-                        filled: true,
-                        fillColor: Color(0xFFF6F6F6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter the location';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ToggleButtons(
-                      isSelected: List.generate(
-                        _toggleOptions.length,
-                        (index) => index == _selectedIndex,
-                      ),
-                      onPressed: (index) {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      selectedColor: Colors.white,
-                      fillColor: Colors.deepOrange,
-                      color: Colors.deepOrange,
-                      children:
-                          _toggleOptions
-                              .map(
-                                (option) => SizedBox(
-                                  width: 120,
-                                  child: Center(child: Text(option)),
-                                ),
-                              )
-                              .toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              side: const BorderSide(color: Colors.deepOrange),
-                            ),
-                            icon: const Icon(
-                              Icons.calendar_today,
-                              color: Colors.deepOrange,
-                            ),
-                            label: Text(
-                              _selectedDate == null
-                                  ? 'Pick Date'
-                                  : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                              style: const TextStyle(color: Colors.deepOrange),
-                            ),
-                            onPressed: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _selectedDate = picked;
-                                });
-                              }
-                            },
+                        child: ToggleButtons(
+                          isSelected: List.generate(
+                            _toggleOptions.length,
+                            (index) => index == _selectedIndex,
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              side: const BorderSide(color: Colors.deepOrange),
-                            ),
-                            icon: const Icon(
-                              Icons.access_time,
-                              color: Colors.deepOrange,
-                            ),
-                            label: Text(
-                              _selectedTime == null
-                                  ? 'Pick Time'
-                                  : _selectedTime!.format(context),
-                              style: const TextStyle(color: Colors.deepOrange),
-                            ),
-                            onPressed: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _selectedTime = picked;
-                                });
-                              }
-                            },
+                          onPressed: (index) {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          selectedColor: Colors.white,
+                          fillColor: Color.fromRGBO(12, 77, 161, 1),
+                          color: Colors.white,
+                          constraints: BoxConstraints.expand(
+                            width: (MediaQuery.of(context).size.width - 80) / 2,
+                            height: 45,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              side: const BorderSide(color: Colors.deepOrange),
-                            ),
-                            icon: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.deepOrange,
-                            ),
-                            label: const Text(
-                              'Add Image',
-                              style: TextStyle(color: Colors.deepOrange),
-                            ),
-                            onPressed: () async {
-                              final pickedFiles =
-                                  await _picker.pickMultiImage();
-                              if (pickedFiles != null) {
-                                setState(() {
-                                  _imageFiles.addAll(pickedFiles);
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16), // Add spacing after the button
-                    if (_imageFiles.isNotEmpty)
-                      SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _imageFiles.length,
-                          itemBuilder: (context, index) {
-                            final image = _imageFiles[index];
-                            return Stack(
-                              alignment: Alignment.topRight,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: DecorationImage(
-                                      image: FileImage(File(image.path)),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 2,
-                                  top: 2,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _imageFiles.removeAt(index);
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.black54,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 18,
+                          renderBorder: false,
+                          children:
+                              _toggleOptions
+                                  .map(
+                                    (option) => Text(
+                                      option,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            );
+                                  )
+                                  .toList(),
+                        ),
+                      ),
+
+                      SizedBox(height: 20),
+
+                      // Item Name
+                      buildTextField(
+                        controller: _itemNameController,
+                        label: "Item Name",
+                        icon: Icons.inventory,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter item title';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Item Description
+                      buildTextField(
+                        controller: _itemDescriptionController,
+                        label: "Item Description",
+                        icon: Icons.description,
+                        maxLines: 3,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter description';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Campus Selection
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
+                        ),
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedCampus,
+                          decoration: InputDecoration(
+                            labelText: "Select Campus",
+                            labelStyle: TextStyle(color: Colors.white),
+                            prefixIcon: Icon(
+                              Icons.location_city,
+                              color: Colors.white,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                            errorStyle: TextStyle(
+                              color: Colors.yellow,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          dropdownColor: Color.fromRGBO(28, 93, 177, 1),
+                          style: TextStyle(color: Colors.white),
+                          icon: Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.white,
+                          ),
+                          isExpanded: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a campus';
+                            }
+                            return null;
+                          },
+                          items:
+                              _campuses.map((campus) {
+                                return DropdownMenuItem(
+                                  value: campus,
+                                  child: Text(campus),
+                                );
+                              }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCampus = val;
+                            });
                           },
                         ),
                       ),
-                    const SizedBox(height: 16),
-                    CustomButton(
-                      text: 'Submit Report',
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          if (_imageFiles.isNotEmpty) {
-                            // Use the first image from the selected list
-                            context.read<ItemCubit>().addItem(
-                              name: _itemNameController.text.trim(),
-                              description:
-                                  _itemDescriptionController.text.trim(),
-                              campus: _selectedCampus!,
-                              specificLocation:
-                                  _itemLocationController.text.trim(),
-                              category: _toggleOptions[_selectedIndex],
-                              date: _selectedDate!,
-                              time: _selectedTime!,
-                              imageFile: File(
-                                _imageFiles.first.path,
-                              ), // Use the first image
-                            );
-                            clearController();
-                          } else {
-                            // Handle case when no image is selected
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please select an image'),
-                              ),
-                            );
+
+                      SizedBox(height: 16),
+
+                      // Specific Location
+                      buildTextField(
+                        controller: _itemLocationController,
+                        label: "Specific Location",
+                        icon: Icons.location_on,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the location';
                           }
-                        }
-                      },
-                    ),
-                  ],
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 20),
+
+                      // Date and Time
+                      Text(
+                        "When was it ${_toggleOptions[_selectedIndex].toLowerCase()}?",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      // Date and Time Pickers
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: Color.fromRGBO(
+                                            12,
+                                            77,
+                                            161,
+                                            1,
+                                          ),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedDate = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      _selectedDate == null
+                                          ? 'Select Date'
+                                          : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: Color.fromRGBO(
+                                            12,
+                                            77,
+                                            161,
+                                            1,
+                                          ),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedTime = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      _selectedTime == null
+                                          ? 'Select Time'
+                                          : _selectedTime!.format(context),
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 20),
+
+                      // Image Upload
+                      Text(
+                        "Upload Images",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      GestureDetector(
+                        onTap: () async {
+                          final pickedFiles = await _picker.pickMultiImage();
+                          if (pickedFiles != null) {
+                            setState(() {
+                              _imageFiles.addAll(pickedFiles);
+                            });
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.camera_alt, color: Colors.white),
+                              SizedBox(width: 10),
+                              Text(
+                                'Add Images',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Image Preview
+                      if (_imageFiles.isNotEmpty)
+                        Container(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _imageFiles.length,
+                            itemBuilder: (context, index) {
+                              final image = _imageFiles[index];
+                              return Stack(
+                                alignment: Alignment.topRight,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        image: FileImage(File(image.path)),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 5,
+                                    top: 5,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _imageFiles.removeAt(index);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.black.withOpacity(0.7),
+                                        ),
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+
+                      SizedBox(height: 30),
+
+                      // Submit Button
+                      BlocBuilder<ItemCubit, ItemState>(
+                        builder: (context, state) {
+                          // Disable button during loading
+                          bool isLoading = state is ItemLoading;
+
+                          return ElevatedButton(
+                            onPressed:
+                                isLoading
+                                    ? null // Disable button when loading
+                                    : () {
+                                      if (_formKey.currentState!.validate()) {
+                                        if (_selectedDate == null) {
+                                          showErrorSnackbar(
+                                            'Please select a date',
+                                          );
+                                          return;
+                                        }
+
+                                        if (_selectedTime == null) {
+                                          showErrorSnackbar(
+                                            'Please select a time',
+                                          );
+                                          return;
+                                        }
+
+                                        if (_imageFiles.isEmpty) {
+                                          showErrorSnackbar(
+                                            'Please select at least one image',
+                                          );
+                                          return;
+                                        }
+
+                                        // Submit the report
+                                        context.read<ItemCubit>().addItem(
+                                          name: _itemNameController.text.trim(),
+                                          description:
+                                              _itemDescriptionController.text
+                                                  .trim(),
+                                          campus: _selectedCampus!,
+                                          specificLocation:
+                                              _itemLocationController.text
+                                                  .trim(),
+                                          category:
+                                              _toggleOptions[_selectedIndex],
+                                          date: _selectedDate!,
+                                          time: _selectedTime!,
+                                          imageFile: File(
+                                            _imageFiles.first.path,
+                                          ),
+                                        );
+
+                                        clearController();
+                                      }
+                                    },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Color.fromRGBO(12, 77, 161, 1),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 4,
+                              minimumSize: Size(double.infinity, 50),
+                              // Dim the button when disabled
+                              disabledBackgroundColor: Colors.grey.shade300,
+                              disabledForegroundColor: Colors.grey.shade700,
+                            ),
+                            child: Text(
+                              isLoading ? "Submitting..." : "Submit Report",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ).animate().fadeIn(delay: 400.ms, duration: 600.ms),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  void showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // Helper method for text fields with yellow error text
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    required String? Function(String?) validator,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.white),
+          prefixIcon: Icon(icon, color: Colors.white),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          // Yellow error styling
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.yellow, width: 1.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.yellow, width: 1.5),
+          ),
+          // Yellow error text
+          errorStyle: TextStyle(
+            color: Colors.yellow,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
+        style: TextStyle(color: Colors.white, fontSize: 16),
+        validator: validator,
       ),
     );
   }
