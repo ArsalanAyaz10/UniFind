@@ -60,4 +60,19 @@ class ItemCubit extends Cubit<ItemState> {
       emit(ItemError('Failed to fetch item: ${e.toString()}'));
     }
   }
+
+Future<void> updateItemStatus(String itemId, String status) async {
+  emit(ItemLoading());
+
+  try {
+    await itemRepository.updateItemStatus(itemId, status);
+
+    // Refetch the list after updating
+    final List<Item> items = await itemRepository.fetchItems();
+    emit(ItemsLoaded(items));
+  } catch (e) {
+    emit(ItemError('Failed to update status: ${e.toString()}'));
+  }
+}
+
 }

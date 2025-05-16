@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 
-
 class ItemRepository {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
@@ -67,15 +66,13 @@ class ItemRepository {
       final querySnapshot =
           await firestore
               .collection('items')
+              .where('status', isEqualTo: 'active') // 👈 Only fetch active ones
               .orderBy('date', descending: true)
               .get();
 
-      List<Item> items =
-          querySnapshot.docs.map((doc) {
-            return Item.fromMap(doc.id, doc.data());
-          }).toList();
-
-      return items;
+      return querySnapshot.docs
+          .map((doc) => Item.fromMap(doc.id, doc.data()))
+          .toList();
     } catch (e) {
       throw Exception('Failed to fetch items: $e');
     }

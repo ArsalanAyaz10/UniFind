@@ -5,7 +5,6 @@ import 'package:unifind/core/widgets/custom_drawer.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
-import 'package:unifind/features/item/data/item_repository.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 import 'package:unifind/features/item/view/itemDetail_screen.dart';
 
@@ -20,6 +19,7 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
   List<Item> _userItems = [];
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isUpdatingStatus = false;
 
   @override
   void initState() {
@@ -42,17 +42,18 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
 
       // Fetch all items
       await context.read<ItemCubit>().fetchItems();
-      
+
       // Wait for the state to update
       await Future.delayed(Duration.zero);
-      
+
       // Get the current state
       final state = context.read<ItemCubit>().state;
-      
+
       if (state is ItemsLoaded) {
         // Filter items by user ID
         setState(() {
-          _userItems = state.items.where((item) => item.userId == userId).toList();
+          _userItems =
+              state.items.where((item) => item.userId == userId).toList();
           _isLoading = false;
         });
       } else if (state is ItemError) {
@@ -70,23 +71,30 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
   }
 
   Future<void> _updateItemStatus(String itemId, String newStatus) async {
+    if (_isUpdatingStatus) return;
+
+    setState(() {
+      _isUpdatingStatus = true;
+    });
+
     try {
-      await context.read<ItemRepository>().updateItemStatus(itemId, newStatus);
-      
+      // Use ItemCubit instead of directly calling repository
+      await context.read<ItemCubit>().updateItemStatus(itemId, newStatus);
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Item status updated successfully',
+            'Item status updated to $newStatus',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
       );
-      
+
       // Refresh the items
-      _fetchUserItems();
+      await _fetchUserItems();
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,6 +107,12 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUpdatingStatus = false;
+        });
+      }
     }
   }
 
@@ -209,10 +223,7 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Color.fromRGBO(12, 77, 161, 1),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -263,10 +274,7 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Color.fromRGBO(12, 77, 161, 1),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -293,9 +301,9 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
                 color: Colors.white,
               ),
             ).animate().fadeIn(duration: 600.ms),
-            
+
             SizedBox(height: 8),
-            
+
             Text(
               "Manage and update the status of your reported items",
               style: TextStyle(
@@ -303,39 +311,38 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
                 color: Colors.white.withOpacity(0.8),
               ),
             ).animate().fadeIn(delay: 200.ms, duration: 600.ms),
-            
+
             SizedBox(height: 24),
-            
+
             ..._userItems.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
               return MyItemCard(
-                item: item,
-                onStatusUpdate: (newStatus) {
-                  _updateItemStatus(item.itemId, newStatus);
-                },
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ItemdetailScreen(
-                        item: item,
-                        itemId: item.itemId,
-                      ),
-                    ),
-                  ).then((_) {
-                    if (mounted) {
-                      _fetchUserItems();
-                    }
-                  });
-                },
-              ).animate(
-                delay: Duration(milliseconds: 300 + (index * 100)),
-              ).fadeIn(duration: 600.ms).slideY(
-                begin: 0.2,
-                end: 0,
-                duration: 600.ms,
-              );
+                    item: item,
+                    isUpdatingStatus: _isUpdatingStatus,
+                    onStatusUpdate: (newStatus) {
+                      _updateItemStatus(item.itemId, newStatus);
+                    },
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ItemdetailScreen(
+                                item: item,
+                                itemId: item.itemId,
+                              ),
+                        ),
+                      ).then((_) {
+                        if (mounted) {
+                          _fetchUserItems();
+                        }
+                      });
+                    },
+                  )
+                  .animate(delay: Duration(milliseconds: 300 + (index * 100)))
+                  .fadeIn(duration: 600.ms)
+                  .slideY(begin: 0.2, end: 0, duration: 600.ms);
             }).toList(),
           ],
         ),
@@ -348,12 +355,14 @@ class MyItemCard extends StatelessWidget {
   final Item item;
   final Function(String) onStatusUpdate;
   final VoidCallback onTap;
+  final bool isUpdatingStatus;
 
   const MyItemCard({
     Key? key,
     required this.item,
     required this.onStatusUpdate,
     required this.onTap,
+    this.isUpdatingStatus = false,
   }) : super(key: key);
 
   @override
@@ -408,14 +417,12 @@ class MyItemCard extends StatelessWidget {
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: item.category.toLowerCase() == 'lost'
-                          ? Colors.red.withOpacity(0.8)
-                          : Colors.green.withOpacity(0.8),
+                      color:
+                          item.category.toLowerCase() == 'lost'
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.green.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(
@@ -432,10 +439,7 @@ class MyItemCard extends StatelessWidget {
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: _getStatusColor(item.status),
                       borderRadius: BorderRadius.circular(30),
@@ -531,57 +535,86 @@ class MyItemCard extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: Color.fromRGBO(12, 77, 161, 1),
-                        ),
-                        onSelected: onStatusUpdate,
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'active',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 20,
+                      child:
+                          isUpdatingStatus
+                              ? Container(
+                                width: 48,
+                                height: 48,
+                                padding: EdgeInsets.all(12),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color.fromRGBO(12, 77, 161, 1),
+                                  ),
                                 ),
-                                SizedBox(width: 8),
-                                Text('Active'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'dormant',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.pause_circle_filled,
-                                  color: Colors.orange,
-                                  size: 20,
+                              )
+                              : PopupMenuButton<String>(
+                                icon: Icon(
+                                  Icons.more_vert,
+                                  color: Color.fromRGBO(12, 77, 161, 1),
                                 ),
-                                SizedBox(width: 8),
-                                Text('Dormant'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'returned',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.assignment_turned_in,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 8),
-                                Text('Returned to Owner'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                                tooltip: 'Change status',
+                                onSelected: onStatusUpdate,
+                                itemBuilder:
+                                    (context) => [
+                                      PopupMenuItem(
+                                        value: 'active',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Active'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'dormant',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.pause_circle_filled,
+                                              color: Colors.orange,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Dormant'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'returned',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.assignment_turned_in,
+                                              color: Colors.blue,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Returned to Owner'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'claimed',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.person_search,
+                                              color: Colors.purple,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Claimed'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                              ),
                     ),
                   ],
                 ),
@@ -605,6 +638,8 @@ class MyItemCard extends StatelessWidget {
         return Colors.orange.withOpacity(0.8);
       case 'returned':
         return Colors.blue.withOpacity(0.8);
+      case 'claimed':
+        return Colors.purple.withOpacity(0.8);
       default:
         return Colors.grey.withOpacity(0.8);
     }
