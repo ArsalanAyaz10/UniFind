@@ -88,8 +88,12 @@ class ProfileRepository {
     final mimeType = lookupMimeType(imageFile.path);
     final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
+    final fileName = path.basename(imageFile.path);
+    final publicId = 'Unifind/UserProfiles/$uid/$fileName'; // Folder structure
+
     final request = http.MultipartRequest('POST', uploadUrl)
       ..fields['upload_preset'] = uploadPreset
+      ..fields['public_id'] = publicId
       ..files.add(await http.MultipartFile.fromPath(
         'file',
         imageFile.path,
@@ -105,7 +109,7 @@ class ProfileRepository {
     final resData = jsonDecode(await response.stream.bytesToString());
     final imageUrl = resData['secure_url'];
 
-    // ✅ Save the image URL in Firestore
+    // Save the image URL in Firestore
     await firestore.collection('users').doc(uid).update({
       'profilePicUrl': imageUrl,
     });
