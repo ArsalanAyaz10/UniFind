@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:unifind/features/chat/data/model/chat_model.dart';
 
 

@@ -9,6 +9,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepository profileRepository;
 
   ProfileCubit(this.profileRepository) : super(ProfileInitial());
+
   Future<void> fetchProfile() async {
     emit(ProfileLoading());
     try {
@@ -20,11 +21,9 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      AppUser? userProfile = await profileRepository.fetchProfile(uid);
+      final userProfile = await profileRepository.fetchProfile(uid);
       if (userProfile != null) {
-        emit(
-          ProfileLoaded(userProfile),
-        ); // The user profile now includes the profile picture URL
+        emit(ProfileLoaded(userProfile));
       } else {
         emit(ProfileError('Profile not found.'));
       }
@@ -73,9 +72,20 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> uploadProfilePicture(File imageFile) async {
     emit(ProfileLoading());
     try {
-      final uid = profileRepository.firebaseAuth.currentUser!.uid;
+      final uid = profileRepository.firebaseAuth.currentUser?.uid;
+      if (uid == null) {
+        emit(ProfileError('No user is currently logged in.'));
+        return;
+      }
+
       final url = await profileRepository.uploadProfilePicture(uid, imageFile);
       emit(ProfilePictureUpdated(url));
+
+      // Optionally refresh full profile after upload
+      final updatedUser = await profileRepository.fetchProfile(uid);
+      if (updatedUser != null) {
+        emit(ProfileLoaded(updatedUser));
+      }
     } catch (e) {
       emit(ProfileError('Failed to upload profile picture: ${e.toString()}'));
     }
@@ -84,12 +94,10 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> fetchUserById(String userId) async {
     try {
       emit(ProfileLoading());
-      final user = await profileRepository.getUserById(
-        userId,
-      ); // implement this in repo
+      final user = await profileRepository.getUserById(userId);
       emit(ProfileLoaded(user));
     } catch (e) {
-      emit(ProfileError('Failed to load user'));
+      emit(ProfileError('Failed to load user: ${e.toString()}'));
     }
   }
 }

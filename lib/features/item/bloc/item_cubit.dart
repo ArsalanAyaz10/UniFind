@@ -18,7 +18,7 @@ class ItemCubit extends Cubit<ItemState> {
     required String category,
     required DateTime date,
     required TimeOfDay time,
-    required File imageFile,
+    File? imageFile, // ✅ Optional image
   }) async {
     emit(ItemLoading());
 
@@ -35,7 +35,7 @@ class ItemCubit extends Cubit<ItemState> {
       );
       emit(ItemSuccess());
     } catch (e) {
-      emit(ItemError(e.toString()));
+      emit(ItemError('Failed to add item: ${e.toString()}'));
     }
   }
 
@@ -61,18 +61,17 @@ class ItemCubit extends Cubit<ItemState> {
     }
   }
 
-Future<void> updateItemStatus(String itemId, String status) async {
-  emit(ItemLoading());
+  Future<void> updateItemStatus(String itemId, String status) async {
+    emit(ItemLoading());
 
-  try {
-    await itemRepository.updateItemStatus(itemId, status);
+    try {
+      await itemRepository.updateItemStatus(itemId, status);
 
-    // Refetch the list after updating
-    final List<Item> items = await itemRepository.fetchItems();
-    emit(ItemsLoaded(items));
-  } catch (e) {
-    emit(ItemError('Failed to update status: ${e.toString()}'));
+      // Optionally refetch updated list
+      final List<Item> items = await itemRepository.fetchItems();
+      emit(ItemsLoaded(items));
+    } catch (e) {
+      emit(ItemError('Failed to update status: ${e.toString()}'));
+    }
   }
-}
-
 }

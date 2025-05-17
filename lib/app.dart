@@ -42,7 +42,6 @@ class UniFindApp extends StatelessWidget {
                 ProfileRepository(
                   FirebaseAuth.instance,
                   FirebaseFirestore.instance,
-                  FirebaseStorage.instance,
                 ),
               ),
         ),
@@ -52,7 +51,6 @@ class UniFindApp extends StatelessWidget {
                 ItemRepository(
                   FirebaseAuth.instance,
                   FirebaseFirestore.instance,
-                  FirebaseStorage.instance,
                 ),
               ),
         ),

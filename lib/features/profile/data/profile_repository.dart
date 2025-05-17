@@ -1,16 +1,22 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:unifind/core/models/user_model.dart';
+import 'package:mime/mime.dart';
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
 
 class ProfileRepository {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
-  final FirebaseStorage _firebaseStorage;
 
-  ProfileRepository(this.firebaseAuth, this.firestore, this._firebaseStorage);
+  // Cloudinary Config
+  static const String cloudName = 'dk49lauij';
+  static const String uploadPreset = 'ZabFind_Uploads';
+
+  ProfileRepository(this.firebaseAuth, this.firestore);
 
   Future<void> deleteAccount(String uid) async {
     try {
@@ -34,23 +40,11 @@ class ProfileRepository {
       if (docSnapshot.exists) {
         final data = docSnapshot.data();
         if (data != null) {
-          // Fetch profile picture URL from Firebase Storage
-          String? profilePictureUrl;
-          try {
-            final storageRef = _firebaseStorage.ref().child(
-              'profile_pictures/$uid.jpg',
-            );
-            profilePictureUrl = await storageRef.getDownloadURL();
-          } catch (e) {
-            profilePictureUrl =
-                null; // Handle if the profile picture doesn't exist
-          }
-
-          // Add the URL to the user data
+          final profilePictureUrl = data['profilePicUrl'] as String?;
           return AppUser.fromMap(uid, data)..photoUrl = profilePictureUrl;
         }
       }
-      return null; // User not found
+      return null;
     } catch (e) {
       throw Exception('Failed to fetch profile: $e');
     }
@@ -63,17 +57,7 @@ class ProfileRepository {
       if (docSnapshot.exists) {
         final data = docSnapshot.data();
         if (data != null) {
-          String? profilePictureUrl;
-
-          try {
-            final storageRef = _firebaseStorage.ref().child(
-              'profile_pictures/$uid.jpg',
-            );
-            profilePictureUrl = await storageRef.getDownloadURL();
-          } catch (_) {
-            profilePictureUrl = null;
-          }
-
+          final profilePictureUrl = data['profilePicUrl'] as String?;
           return AppUser.fromMap(uid, data)..photoUrl = profilePictureUrl;
         }
       }
@@ -101,17 +85,31 @@ class ProfileRepository {
   }
 
   Future<String> uploadProfilePicture(String uid, File imageFile) async {
-    final storageRef = _firebaseStorage.ref().child(
-      'profile_pictures/$uid.jpg',
-    );
-    final uploadTask = await storageRef.putFile(imageFile);
-    final downloadUrl = await uploadTask.ref.getDownloadURL();
+    final mimeType = lookupMimeType(imageFile.path);
+    final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
-    // Update Firestore with the new URL
+    final request = http.MultipartRequest('POST', uploadUrl)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath(
+        'file',
+        imageFile.path,
+        contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+      ));
+
+    final response = await request.send();
+
+    if (response.statusCode != 200) {
+      throw Exception('Cloudinary upload failed: ${response.statusCode}');
+    }
+
+    final resData = jsonDecode(await response.stream.bytesToString());
+    final imageUrl = resData['secure_url'];
+
+    // ✅ Save the image URL in Firestore
     await firestore.collection('users').doc(uid).update({
-      'profilePicUrl': downloadUrl,
+      'profilePicUrl': imageUrl,
     });
 
-    return downloadUrl;
+    return imageUrl;
   }
 }
