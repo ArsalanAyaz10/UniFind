@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:unifind/core/models/user_model.dart';
+import 'package:unifind/features/chat/view/chat_screen.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
@@ -754,15 +755,10 @@ class ChatButton extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                // Navigate to chat screen with this user
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Chat functionality will be implemented here',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Color.fromRGBO(12, 77, 161, 1),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(otherUserId: userId),
                   ),
                 );
               },

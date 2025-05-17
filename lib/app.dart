@@ -8,9 +8,11 @@ import 'package:unifind/features/auth/data/auth_repository.dart';
 import 'package:unifind/features/auth/view/getstarted_screen.dart';
 import 'package:unifind/features/auth/view/login_screen.dart';
 import 'package:unifind/features/auth/view/signup_screen.dart';
+import 'package:unifind/features/chat/bloc/chat_cubit.dart';
+import 'package:unifind/features/chat/data/chat_repository.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
-import 'package:unifind/features/item/bloc/item_cubit.dart'; 
-import 'package:unifind/features/item/data/item_repository.dart'; 
+import 'package:unifind/features/item/bloc/item_cubit.dart';
+import 'package:unifind/features/item/data/item_repository.dart';
 import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/item/view/myItem_screen.dart';
 import 'package:unifind/features/item/view/reportItem_screen.dart';
@@ -26,7 +28,6 @@ class UniFindApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        
         BlocProvider<AuthCubit>(
           create:
               (_) => AuthCubit(
@@ -51,6 +52,15 @@ class UniFindApp extends StatelessWidget {
                 ItemRepository(
                   FirebaseAuth.instance,
                   FirebaseFirestore.instance,
+                ),
+              ),
+        ),
+        BlocProvider<ChatCubit>(
+          create:
+              (_) => ChatCubit(
+                chatRepository: ChatRepository(
+                  auth: FirebaseAuth.instance,
+                  firestore: FirebaseFirestore.instance,
                 ),
               ),
         ),
