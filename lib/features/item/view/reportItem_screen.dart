@@ -433,7 +433,7 @@ class _ReportItemUIState extends State<ReportItemUI> {
                                       color: Colors.white,
                                       size: 20,
                                     ),
-                                    SizedBox(width: 8),
+                                    SizedBox(width: 5),
                                     Text(
                                       _selectedDate == null
                                           ? 'Select Date'

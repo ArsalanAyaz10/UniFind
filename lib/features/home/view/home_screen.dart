@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
-          'UniFinder',
+          'ZabFind',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
