@@ -151,18 +151,6 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
         ),
         child: _buildContent(),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/report-item').then((_) {
-            // Refresh items when returning from report screen
-            _fetchUserItems();
-          });
-        },
-        backgroundColor: Colors.white,
-        foregroundColor: Color.fromRGBO(12, 77, 161, 1),
-        icon: Icon(Icons.add),
-        label: Text("Report New Item"),
-      ),
     );
   }
 
