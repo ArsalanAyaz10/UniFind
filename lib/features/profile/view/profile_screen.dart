@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -22,7 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      context.read<ProfileCubit>().fetchProfile();
+      context.read<CurrentProfileCubit>().fetchProfile();
     }
   }
 
@@ -33,10 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text(
           'Edit Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Color.fromRGBO(12, 77, 161, 1).withOpacity(0.8),
         elevation: 0,
@@ -45,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: BlocConsumer<ProfileCubit, ProfileState>(
+      body: BlocConsumer<CurrentProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileLoading) {
             // Don't show dialog, we'll handle loading in the UI
@@ -158,7 +155,9 @@ class _ProfileBodyState extends State<ProfileBody> {
       final imageFile = File(pickedFile.path);
       try {
         // Upload and get URL via Cubit
-        await context.read<ProfileCubit>().uploadProfilePicture(imageFile);
+        await context.read<CurrentProfileCubit>().uploadProfilePicture(
+          imageFile,
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -216,12 +215,13 @@ class _ProfileBodyState extends State<ProfileBody> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      BlocBuilder<ProfileCubit, ProfileState>(
+                      BlocBuilder<CurrentProfileCubit, ProfileState>(
                         builder: (context, state) {
                           if (state is ProfileLoaded) {
                             _usernameController.text = state.user.name ?? '';
                             _programController.text = state.user.program ?? '';
-                            _stuIDController.text = state.user.studentId?.toString() ?? '';
+                            _stuIDController.text =
+                                state.user.studentId?.toString() ?? '';
 
                             return Container(
                               decoration: BoxDecoration(
@@ -237,9 +237,13 @@ class _ProfileBodyState extends State<ProfileBody> {
                               child: CircleAvatar(
                                 radius: 60,
                                 backgroundColor: Colors.white.withOpacity(0.2),
-                                backgroundImage: state.user.photoUrl != null
-                                    ? NetworkImage(state.user.photoUrl!)
-                                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                                backgroundImage:
+                                    state.user.photoUrl != null
+                                        ? NetworkImage(state.user.photoUrl!)
+                                        : const AssetImage(
+                                              'assets/default_avatar.png',
+                                            )
+                                            as ImageProvider,
                               ),
                             ).animate().fadeIn(duration: 600.ms);
                           }
@@ -256,7 +260,9 @@ class _ProfileBodyState extends State<ProfileBody> {
                       ),
                       if (_isUploadingImage)
                         CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       Positioned(
                         bottom: 0,
@@ -287,18 +293,19 @@ class _ProfileBodyState extends State<ProfileBody> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Form Fields
-                BlocBuilder<ProfileCubit, ProfileState>(
+                BlocBuilder<CurrentProfileCubit, ProfileState>(
                   builder: (context, state) {
                     if (state is ProfileLoaded) {
                       _usernameController.text = state.user.name ?? '';
                       _programController.text = state.user.program ?? '';
-                      _stuIDController.text = state.user.studentId?.toString() ?? '';
+                      _stuIDController.text =
+                          state.user.studentId?.toString() ?? '';
                     }
-                    
+
                     return Container(
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -318,9 +325,9 @@ class _ProfileBodyState extends State<ProfileBody> {
                               return null;
                             },
                           ),
-                          
+
                           const SizedBox(height: 20),
-                          
+
                           buildTextField(
                             controller: _programController,
                             label: "Program",
@@ -332,9 +339,9 @@ class _ProfileBodyState extends State<ProfileBody> {
                               return null;
                             },
                           ),
-                          
+
                           const SizedBox(height: 20),
-                          
+
                           buildTextField(
                             controller: _stuIDController,
                             label: "Student ID",
@@ -350,18 +357,22 @@ class _ProfileBodyState extends State<ProfileBody> {
                               return null;
                             },
                           ),
-                          
+
                           const SizedBox(height: 30),
-                          
+
                           // Save Button
                           ElevatedButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                context.read<ProfileCubit>().updateProfile(
-                                  name: _usernameController.text,
-                                  program: _programController.text,
-                                  studentId: int.tryParse(_stuIDController.text) ?? 0,
-                                );
+                                context
+                                    .read<CurrentProfileCubit>()
+                                    .updateProfile(
+                                      name: _usernameController.text,
+                                      program: _programController.text,
+                                      studentId:
+                                          int.tryParse(_stuIDController.text) ??
+                                          0,
+                                    );
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -382,9 +393,9 @@ class _ProfileBodyState extends State<ProfileBody> {
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 15),
-                          
+
                           // Cancel Button
                           TextButton(
                             onPressed: () {
@@ -409,10 +420,7 @@ class _ProfileBodyState extends State<ProfileBody> {
                           ),
                         ],
                       ),
-                    ).animate().fadeIn(
-                      delay: 300.ms,
-                      duration: 600.ms,
-                    );
+                    ).animate().fadeIn(delay: 300.ms, duration: 600.ms);
                   },
                 ),
               ],
@@ -422,7 +430,7 @@ class _ProfileBodyState extends State<ProfileBody> {
       ),
     );
   }
-  
+
   // Helper method for text fields with yellow error text
   Widget buildTextField({
     required TextEditingController controller,
@@ -471,10 +479,7 @@ class _ProfileBodyState extends State<ProfileBody> {
           ),
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
+        style: TextStyle(color: Colors.white, fontSize: 16),
         validator: validator,
       ),
     );

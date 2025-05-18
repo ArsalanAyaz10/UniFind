@@ -9,7 +9,7 @@ import 'package:unifind/features/item/bloc/item_state.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 import 'package:unifind/features/item/view/itemDetail_screen.dart';
 import 'package:unifind/features/item/view/widgets/categoryScroll.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class ItemdisplayScreen extends StatefulWidget {

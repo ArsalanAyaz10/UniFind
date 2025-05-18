@@ -16,7 +16,8 @@ import 'package:unifind/features/item/data/item_repository.dart';
 import 'package:unifind/features/item/view/itemDisplay_screen.dart';
 import 'package:unifind/features/item/view/myItem_screen.dart';
 import 'package:unifind/features/item/view/reportItem_screen.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/other_profile_cubit.dart';
 import 'package:unifind/features/profile/data/profile_repository.dart';
 import 'package:unifind/features/profile/view/profile_screen.dart';
 import 'package:unifind/features/splash/view/splash_screen.dart';
@@ -37,9 +38,19 @@ class UniFindApp extends StatelessWidget {
                 ),
               ),
         ),
-        BlocProvider<ProfileCubit>(
+        BlocProvider<CurrentProfileCubit>(
           create:
-              (_) => ProfileCubit(
+              (_) => CurrentProfileCubit(
+                ProfileRepository(
+                  FirebaseAuth.instance,
+                  FirebaseFirestore.instance,
+                ),
+              ),
+        ),
+        BlocProvider<OtherProfileCubit>(
+          // <-- Add this provider
+          create:
+              (_) => OtherProfileCubit(
                 ProfileRepository(
                   FirebaseAuth.instance,
                   FirebaseFirestore.instance,

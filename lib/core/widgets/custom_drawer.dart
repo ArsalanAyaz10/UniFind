@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class ModernDrawer extends StatelessWidget {
@@ -15,7 +15,7 @@ class ModernDrawer extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            BlocBuilder<ProfileCubit, ProfileState>(
+            BlocBuilder<CurrentProfileCubit, ProfileState>(
               builder: (context, state) {
                 String name = 'Loading...';
                 String email = '';
@@ -127,16 +127,17 @@ class ModernDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(
-                Icons.settings,
-                color: Color.fromRGBO(12, 77, 161, 1),
-              ),
+              leading: Icon(Icons.chat, color: Color.fromRGBO(12, 77, 161, 1)),
               title: Text(
-                'Settings',
+                'Chats',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
+              trailing:
+                  hasUnreadMessages
+                      ? Badge()
+                      : null, // You can use a badge widget if you want
               onTap: () {
-                Navigator.pushNamed(context, '/settings');
+                Navigator.pushNamed(context, '/chats');
               },
             ),
             Divider(),

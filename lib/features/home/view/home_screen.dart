@@ -6,7 +6,7 @@ import 'package:unifind/core/widgets/custom_drawer.dart';
 import 'package:unifind/core/widgets/stat_card.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/auth/bloc/auth_state.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<ProfileCubit>().fetchProfile();
+    context.read<CurrentProfileCubit>().fetchProfile();
   }
 
   @override
@@ -109,7 +109,7 @@ class ModernHomeUI extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  BlocBuilder<ProfileCubit, ProfileState>(
+                  BlocBuilder<CurrentProfileCubit, ProfileState>(
                     builder: (context, state) {
                       String name = 'there';
                       if (state is ProfileLoaded) {

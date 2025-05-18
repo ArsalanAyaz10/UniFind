@@ -7,7 +7,7 @@ import 'package:unifind/core/widgets/custom_drawer.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
-import 'package:unifind/features/profile/bloc/profile_cubit.dart';
+import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class ReportitemScreen extends StatefulWidget {

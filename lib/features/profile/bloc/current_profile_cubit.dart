@@ -5,10 +5,10 @@ import 'package:unifind/core/models/user_model.dart';
 import 'profile_state.dart';
 import '../data/profile_repository.dart';
 
-class ProfileCubit extends Cubit<ProfileState> {
+class CurrentProfileCubit extends Cubit<ProfileState> {
   final ProfileRepository profileRepository;
 
-  ProfileCubit(this.profileRepository) : super(ProfileInitial());
+  CurrentProfileCubit(this.profileRepository) : super(ProfileInitial());
 
   Future<void> fetchProfile() async {
     emit(ProfileLoading());
