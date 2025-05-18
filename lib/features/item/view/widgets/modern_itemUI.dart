@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/core/models/user_model.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
-import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/other_profile_cubit.dart';
 
 class ModernItemUI extends StatefulWidget {

@@ -11,7 +11,9 @@ void main() {
     const testCategoryLost = 'Lost';
     const testCategoryFound = 'Found';
 
-    testWidgets('displays all main fields and triggers onTap', (WidgetTester tester) async {
+    testWidgets('displays all main fields and triggers onTap', (
+      WidgetTester tester,
+    ) async {
       bool tapped = false;
 
       await tester.pumpWidget(
@@ -44,7 +46,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('shows Lost badge in red and Found badge in green', (WidgetTester tester) async {
+    testWidgets('shows Lost badge in red and Found badge in green', (
+      WidgetTester tester,
+    ) async {
       // Test Lost badge
       await tester.pumpWidget(
         MaterialApp(
@@ -64,10 +68,12 @@ void main() {
       final lostBadge = tester.widget<Container>(
         find.descendant(
           of: find.byType(LostFoundItemCard),
-          matching: find.byWidgetPredicate((w) =>
-            w is Container &&
-            w.child is Text &&
-            (w.child as Text).data == testCategoryLost),
+          matching: find.byWidgetPredicate(
+            (w) =>
+                w is Container &&
+                w.child is Text &&
+                (w.child as Text).data == testCategoryLost,
+          ),
         ),
       );
       final lostBadgeDecoration = lostBadge.decoration as BoxDecoration;
@@ -93,10 +99,12 @@ void main() {
       final foundBadge = tester.widget<Container>(
         find.descendant(
           of: find.byType(LostFoundItemCard),
-          matching: find.byWidgetPredicate((w) =>
-            w is Container &&
-            w.child is Text &&
-            (w.child as Text).data == testCategoryFound),
+          matching: find.byWidgetPredicate(
+            (w) =>
+                w is Container &&
+                w.child is Text &&
+                (w.child as Text).data == testCategoryFound,
+          ),
         ),
       );
       final foundBadgeDecoration = foundBadge.decoration as BoxDecoration;

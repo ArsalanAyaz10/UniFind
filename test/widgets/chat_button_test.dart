@@ -48,9 +48,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Builder(
-              builder: (context) => ChatButton(userId: userId),
-            ),
+            body: Builder(builder: (context) => ChatButton(userId: userId)),
           ),
         ),
       );
@@ -58,11 +56,7 @@ void main() {
 
     testWidgets('displays correct icon and text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ChatButton(userId: 'other_user_id'),
-          ),
-        ),
+        MaterialApp(home: Scaffold(body: ChatButton(userId: 'other_user_id'))),
       );
       await tester.pumpAndSettle();
 
@@ -74,11 +68,7 @@ void main() {
       // Simulate user not signed in by patching FirebaseAuth.instance.currentUser to null
       // This test will work as expected if you refactor your widget to accept FirebaseAuth as a parameter.
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ChatButton(userId: 'other_user_id'),
-          ),
-        ),
+        MaterialApp(home: Scaffold(body: ChatButton(userId: 'other_user_id'))),
       );
       await tester.pumpAndSettle();
 
@@ -90,7 +80,9 @@ void main() {
     });
 
     // This test is illustrative; in practice, you need to inject/mock FirebaseAuth and Navigator correctly
-    testWidgets('navigates to ChatScreen when user is signed in', (tester) async {
+    testWidgets('navigates to ChatScreen when user is signed in', (
+      tester,
+    ) async {
       // For this test, you'd need to refactor ChatButton to accept FirebaseAuth as a parameter
       // so you can inject a mock with a fake user.
       // This is a limitation due to your widget's direct use of FirebaseAuth.instance.
@@ -104,9 +96,9 @@ void main() {
           onGenerateRoute: (settings) {
             if (settings.name == '/') {
               return MaterialPageRoute(
-                builder: (context) => Scaffold(
-                  body: ChatButton(userId: 'other_user_id'),
-                ),
+                builder:
+                    (context) =>
+                        Scaffold(body: ChatButton(userId: 'other_user_id')),
               );
             }
             return null;
