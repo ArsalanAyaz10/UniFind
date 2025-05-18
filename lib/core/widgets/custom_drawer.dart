@@ -13,10 +13,7 @@ class Badge extends StatelessWidget {
     return Container(
       width: 10,
       height: 10,
-      decoration: BoxDecoration(
-        color: Colors.red,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
     );
   }
 }
@@ -67,10 +64,10 @@ class ModernDrawer extends StatelessWidget {
                         radius: 30,
                         backgroundColor: Colors.white.withOpacity(0.2),
                         backgroundImage:
-                        profilePicUrl != null
-                            ? NetworkImage(profilePicUrl)
-                            : const AssetImage('assets/images/profile.jpg')
-                        as ImageProvider,
+                            profilePicUrl != null
+                                ? NetworkImage(profilePicUrl)
+                                : const AssetImage('assets/images/profile.jpg')
+                                    as ImageProvider,
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -95,28 +92,49 @@ class ModernDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.home, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text('Home', style: TextStyle(fontWeight: FontWeight.w500)),
+              title: Text(
+                'Home',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.of(context).pushReplacementNamed('/home');
               },
             ),
             ListTile(
-              leading: Icon(Icons.search, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text('Browse Items', style: TextStyle(fontWeight: FontWeight.w500)),
+              leading: Icon(
+                Icons.search,
+                color: Color.fromRGBO(12, 77, 161, 1),
+              ),
+              title: Text(
+                'Browse Items',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pushNamed(context, '/display');
               },
             ),
             ListTile(
-              leading: Icon(Icons.add_circle_outline, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text('Report Item', style: TextStyle(fontWeight: FontWeight.w500)),
+              leading: Icon(
+                Icons.add_circle_outline,
+                color: Color.fromRGBO(12, 77, 161, 1),
+              ),
+              title: Text(
+                'Report Item',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pushNamed(context, '/report');
               },
             ),
             ListTile(
-              leading: Icon(Icons.person, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text('Profile', style: TextStyle(fontWeight: FontWeight.w500)),
+              leading: Icon(
+                Icons.person,
+                color: Color.fromRGBO(12, 77, 161, 1),
+              ),
+              title: Text(
+                'Profile',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },
@@ -126,11 +144,19 @@ class ModernDrawer extends StatelessWidget {
               builder: (context, chatListState) {
                 bool hasUnreadMessages = false;
                 if (chatListState is ChatListLoaded) {
-                  hasUnreadMessages = chatListState.chats.any((chat) => chat.hasUnread);
+                  hasUnreadMessages = chatListState.chats.any(
+                    (chat) => chat.hasUnread,
+                  );
                 }
                 return ListTile(
-                  leading: Icon(Icons.chat, color: Color.fromRGBO(12, 77, 161, 1)),
-                  title: Text('Chats', style: TextStyle(fontWeight: FontWeight.w500)),
+                  leading: Icon(
+                    Icons.chat,
+                    color: Color.fromRGBO(12, 77, 161, 1),
+                  ),
+                  title: Text(
+                    'Chats',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                   trailing: hasUnreadMessages ? Badge() : null,
                   onTap: () {
                     Navigator.pushNamed(context, '/chats');
@@ -141,7 +167,10 @@ class ModernDrawer extends StatelessWidget {
             Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
-              title: Text('Logout', style: TextStyle(fontWeight: FontWeight.w500)),
+              title: Text(
+                'Logout',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 context.read<AuthCubit>().logout();
                 Navigator.of(context).pop();
