@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:unifind/features/chat/data/models/chat_thread_model.dart';
+import 'package:unifind/features/chat/data/model/chat_tread_model.dart';
 
 abstract class ChatListState extends Equatable {
   const ChatListState();

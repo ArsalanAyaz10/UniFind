@@ -135,7 +135,7 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
           ),
         ],
       ),
-      drawer: ModernDrawer(context),
+      drawer: ModernDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

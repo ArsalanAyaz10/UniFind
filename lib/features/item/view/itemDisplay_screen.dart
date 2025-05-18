@@ -72,7 +72,7 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen>
           ),
         ],
       ),
-      drawer: ModernDrawer(context),
+      drawer: ModernDrawer(),
       body: BlocListener<ItemCubit, ItemState>(
         listener: (context, state) {
           if (state is ItemError) {
@@ -128,7 +128,6 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen>
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
-
 }
 
 class ItemBuilderUI extends StatefulWidget {
@@ -347,7 +346,9 @@ class _ItemBuilderUIState extends State<ItemBuilderUI> {
                                         ).then((_) {
                                           // Force reload items when returning from details
                                           if (mounted) {
-                                            context.read<ItemCubit>().fetchItems();
+                                            context
+                                                .read<ItemCubit>()
+                                                .fetchItems();
                                           }
                                         });
                                       },
@@ -419,7 +420,9 @@ class _ItemBuilderUIState extends State<ItemBuilderUI> {
                                         ).then((_) {
                                           // Force reload items when returning from details
                                           if (mounted) {
-                                            context.read<ItemCubit>().fetchItems();
+                                            context
+                                                .read<ItemCubit>()
+                                                .fetchItems();
                                           }
                                         });
                                       },
@@ -454,7 +457,7 @@ class _ItemBuilderUIState extends State<ItemBuilderUI> {
                 context.read<ItemCubit>().fetchItems();
               }
             });
-            
+
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

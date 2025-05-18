@@ -19,33 +19,63 @@ class ChatThreadModel {
     this.hasUnread = false,
   });
 
-  factory ChatThreadModel.fromMap(String id, Map<String, dynamic> data, String currentUserId) {
-    // Assumes Firestore doc structure with participants, lastMessage, etc.
+  /// Creates a ChatThreadModel from Firestore data.
+  /// [data] is a chat thread document.
+  /// [currentUserId] is used to determine the "other" user and unread status.
+  factory ChatThreadModel.fromMap(
+    String id,
+    Map<String, dynamic> data,
+    String currentUserId,
+  ) {
     final participants = List<String>.from(data['participants'] ?? []);
-    // Find the other user (not the current user)
-    final otherUserId = participants.firstWhere((id) => id != currentUserId, orElse: () => '');
+    final otherUserId = participants.firstWhere(
+      (uid) => uid != currentUserId,
+      orElse: () => '',
+    );
 
+    // Extract userInfo for the other user if available
+    String otherUserName = '';
+    String? otherUserPhotoUrl;
+    final userInfo = data['userInfo'] as Map<String, dynamic>? ?? {};
+    if (userInfo.isNotEmpty && userInfo[otherUserId] != null) {
+      final otherUserInfo = userInfo[otherUserId] as Map<String, dynamic>? ?? {};
+      otherUserName = (otherUserInfo['name'] ?? '') as String;
+      otherUserPhotoUrl = otherUserInfo['photoUrl'] as String?;
+    } else {
+      // fallback to any old field if present, for backward compatibility
+      otherUserName = data['otherUserName'] ?? '';
+      otherUserPhotoUrl = data['otherUserPhotoUrl'];
+    }
+
+    // Support both 'lastMessageTime' and 'lastTimestamp' for compatibility
+    final Timestamp? timestamp =
+        data['lastMessageTime'] ??
+        data['lastTimestamp']; // 'lastTimestamp' fallback (legacy field)
     return ChatThreadModel(
       threadId: id,
       otherUserId: otherUserId,
-      otherUserName: data['otherUserName'] ?? '',
-      otherUserPhotoUrl: data['otherUserPhotoUrl'],
+      otherUserName: otherUserName,
+      otherUserPhotoUrl: otherUserPhotoUrl,
       lastMessage: data['lastMessage'],
-      lastMessageTime: data['lastMessageTime'] != null
-          ? (data['lastMessageTime'] as Timestamp).toDate()
-          : null,
-      hasUnread: data['unreadBy'] != null && List<String>.from(data['unreadBy']).contains(currentUserId),
+      lastMessageTime: timestamp != null ? timestamp.toDate() : null,
+      hasUnread:
+          (data['unreadBy'] != null &&
+              List<String>.from(data['unreadBy']).contains(currentUserId)),
     );
   }
 
+  /// Converts this thread back to a map for Firestore.
   Map<String, dynamic> toMap() {
     return {
-      'otherUserId': otherUserId,
+      'participants': [
+        otherUserId,
+      ], // You should include both user IDs when saving
       'otherUserName': otherUserName,
       'otherUserPhotoUrl': otherUserPhotoUrl,
       'lastMessage': lastMessage,
-      'lastMessageTime': lastMessageTime,
-      'hasUnread': hasUnread,
+      'lastMessageTime':
+          lastMessageTime != null ? Timestamp.fromDate(lastMessageTime!) : null,
+      // 'unreadBy': ... -- manage this in your repository/cubit logic
     };
   }
 }

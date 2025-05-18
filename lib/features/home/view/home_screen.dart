@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: ModernDrawer(context),
+      drawer: ModernDrawer(),
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthLoggedOut) {

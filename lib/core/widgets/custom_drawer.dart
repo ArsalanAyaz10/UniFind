@@ -3,9 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
 import 'package:unifind/features/profile/bloc/profile_state.dart';
+import 'package:unifind/features/chat/bloc/chat_list_cubit.dart';
+import 'package:unifind/features/chat/bloc/chat_list_state.dart';
+
+// You can use the badges package for a nice badge, or a simple red dot:
+class Badge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
 
 class ModernDrawer extends StatelessWidget {
-  const ModernDrawer(BuildContext context, {Key? key}) : super(key: key);
+  const ModernDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +67,10 @@ class ModernDrawer extends StatelessWidget {
                         radius: 30,
                         backgroundColor: Colors.white.withOpacity(0.2),
                         backgroundImage:
-                            profilePicUrl != null
-                                ? NetworkImage(profilePicUrl)
-                                : const AssetImage('assets/images/profile.jpg')
-                                    as ImageProvider,
+                        profilePicUrl != null
+                            ? NetworkImage(profilePicUrl)
+                            : const AssetImage('assets/images/profile.jpg')
+                        as ImageProvider,
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -76,77 +93,55 @@ class ModernDrawer extends StatelessWidget {
                 );
               },
             ),
-
             ListTile(
               leading: Icon(Icons.home, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text(
-                'Home',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              title: Text('Home', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () {
                 Navigator.of(context).pushReplacementNamed('/home');
               },
             ),
             ListTile(
-              leading: Icon(
-                Icons.search,
-                color: Color.fromRGBO(12, 77, 161, 1),
-              ),
-              title: Text(
-                'Browse Items',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              leading: Icon(Icons.search, color: Color.fromRGBO(12, 77, 161, 1)),
+              title: Text('Browse Items', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () {
                 Navigator.pushNamed(context, '/display');
               },
             ),
             ListTile(
-              leading: Icon(
-                Icons.add_circle_outline,
-                color: Color.fromRGBO(12, 77, 161, 1),
-              ),
-              title: Text(
-                'Report Item',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              leading: Icon(Icons.add_circle_outline, color: Color.fromRGBO(12, 77, 161, 1)),
+              title: Text('Report Item', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () {
                 Navigator.pushNamed(context, '/report');
               },
             ),
             ListTile(
-              leading: Icon(
-                Icons.person,
-                color: Color.fromRGBO(12, 77, 161, 1),
-              ),
-              title: Text(
-                'Profile',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              leading: Icon(Icons.person, color: Color.fromRGBO(12, 77, 161, 1)),
+              title: Text('Profile', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
-            ListTile(
-              leading: Icon(Icons.chat, color: Color.fromRGBO(12, 77, 161, 1)),
-              title: Text(
-                'Chats',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              trailing:
-                  hasUnreadMessages
-                      ? Badge()
-                      : null, // You can use a badge widget if you want
-              onTap: () {
-                Navigator.pushNamed(context, '/chats');
+            // --- CHATS WITH BADGE ---
+            BlocBuilder<ChatListCubit, ChatListState>(
+              builder: (context, chatListState) {
+                bool hasUnreadMessages = false;
+                if (chatListState is ChatListLoaded) {
+                  hasUnreadMessages = chatListState.chats.any((chat) => chat.hasUnread);
+                }
+                return ListTile(
+                  leading: Icon(Icons.chat, color: Color.fromRGBO(12, 77, 161, 1)),
+                  title: Text('Chats', style: TextStyle(fontWeight: FontWeight.w500)),
+                  trailing: hasUnreadMessages ? Badge() : null,
+                  onTap: () {
+                    Navigator.pushNamed(context, '/chats');
+                  },
+                );
               },
             ),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
-              title: Text(
-                'Logout',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              title: Text('Logout', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () {
                 context.read<AuthCubit>().logout();
                 Navigator.of(context).pop();

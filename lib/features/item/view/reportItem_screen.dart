@@ -31,7 +31,7 @@ class _ReportitemScreenState extends State<ReportitemScreen> {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      drawer: ModernDrawer(context),
+      drawer: ModernDrawer(),
       body: Stack(
         children: [
           // Background gradient

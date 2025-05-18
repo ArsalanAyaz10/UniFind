@@ -13,20 +13,32 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
 
   String? get currentUserId => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (currentUserId != null) {
       context.read<ChatCubit>().loadMessages(
         currentUserId: currentUserId!,
         otherUserId: widget.otherUserId,
       );
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _messageController.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _sendMessage() {
@@ -38,13 +50,43 @@ class _ChatScreenState extends State<ChatScreen> {
         text: messageText,
       );
       _messageController.clear();
+      // Scroll to bottom after sending
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  void didChangeMetrics() {
+    // When keyboard pops up, scroll to bottom
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+    super.didChangeMetrics();
   }
 
   @override
   Widget build(BuildContext context) {
     if (currentUserId == null) {
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(title: const Text('Chat')),
         body: const Center(child: Text("You must be signed in to chat.")),
       );
@@ -52,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Chat')),
-      // This is generally true by default, but explicit for clarity
+      // DO NOT wrap everything in SafeArea. Only wrap the input row.
       resizeToAvoidBottomInset: true,
       body: Column(
         children: [
@@ -66,8 +108,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (messages.isEmpty) {
                     return const Center(child: Text('No messages yet.'));
                   }
+                  // Show oldest at top, newest at bottom (no reverse)
                   return ListView.builder(
-                    reverse: true,
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index];
@@ -106,24 +150,19 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          // This SafeArea ensures the input is always visible above navigation bars.
+          // Only wrap the input area in SafeArea to keep it above the keyboard
           SafeArea(
-            minimum: const EdgeInsets.only(
-              left: 8,
-              right: 8,
-              bottom: 6,
-              top: 2,
-            ),
+            top: false,
+            left: false,
+            right: false,
             child: Padding(
-              // Add this padding to handle the keyboard overlay as well.
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
+              padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      focusNode: _focusNode,
                       decoration: const InputDecoration(
                         hintText: 'Type a message...',
                         border: OutlineInputBorder(),
@@ -132,6 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           vertical: 12,
                         ),
                       ),
+                      onTap: _scrollToBottom,
                     ),
                   ),
                   IconButton(

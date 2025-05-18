@@ -9,7 +9,9 @@ import 'package:unifind/features/auth/view/getstarted_screen.dart';
 import 'package:unifind/features/auth/view/login_screen.dart';
 import 'package:unifind/features/auth/view/signup_screen.dart';
 import 'package:unifind/features/chat/bloc/chat_cubit.dart';
+import 'package:unifind/features/chat/bloc/chat_list_cubit.dart'; // <-- Add this import
 import 'package:unifind/features/chat/data/chat_repository.dart';
+import 'package:unifind/features/chat/view/allchat_screen.dart';
 import 'package:unifind/features/home/view/home_screen.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/data/item_repository.dart';
@@ -48,7 +50,6 @@ class UniFindApp extends StatelessWidget {
               ),
         ),
         BlocProvider<OtherProfileCubit>(
-          // <-- Add this provider
           create:
               (_) => OtherProfileCubit(
                 ProfileRepository(
@@ -75,6 +76,16 @@ class UniFindApp extends StatelessWidget {
                 ),
               ),
         ),
+        BlocProvider<ChatListCubit>(
+          // <-- Add this provider
+          create:
+              (_) => ChatListCubit(
+                chatRepository: ChatRepository(
+                  auth: FirebaseAuth.instance,
+                  firestore: FirebaseFirestore.instance,
+                ),
+              ),
+        ),
       ],
       child: MaterialApp(
         routes: {
@@ -87,6 +98,7 @@ class UniFindApp extends StatelessWidget {
           '/report': (context) => ReportitemScreen(),
           '/display': (context) => ItemdisplayScreen(),
           '/my-items': (context) => MyItemsScreen(),
+          '/chats': (context) => AllChatsScreen(),
           //'/displaydetail': (context) => ItemdetailScreen(itemId: ''),
         },
         title: 'UniFind',
