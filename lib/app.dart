@@ -88,6 +88,7 @@ class UniFindApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         routes: {
           '/splash': (context) => SplashScreen(),
           '/started': (context) => GetStartedScreen(),

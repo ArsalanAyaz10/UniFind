@@ -187,14 +187,6 @@ class ModernHomeUI extends StatelessWidget {
                             icon: Icons.inventory_2_outlined,
                             onTap: () {
                               Navigator.pushNamed(context, '/my-items');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'My Items feature coming soon!',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
                             },
                           )
                           .animate(delay: 800.ms)
