@@ -3,14 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:unifind/core/widgets/custom_drawer.dart';
 import 'package:unifind/core/widgets/modern_itemcard.dart';
-import 'package:unifind/features/auth/bloc/auth_cubit.dart';
 import 'package:unifind/features/item/bloc/item_cubit.dart';
 import 'package:unifind/features/item/bloc/item_state.dart';
 import 'package:unifind/features/item/data/models/item_model.dart';
 import 'package:unifind/features/item/view/itemDetail_screen.dart';
-import 'package:unifind/features/item/view/widgets/categoryScroll.dart';
-import 'package:unifind/features/profile/bloc/current_profile_cubit.dart';
-import 'package:unifind/features/profile/bloc/profile_state.dart';
 
 class ItemdisplayScreen extends StatefulWidget {
   const ItemdisplayScreen({super.key});

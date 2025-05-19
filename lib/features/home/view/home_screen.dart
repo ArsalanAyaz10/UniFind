@@ -147,7 +147,6 @@ class ModernHomeUI extends StatelessWidget {
                     children: [
                       // Report Item Card
                       ActionCard(
-                            context,
                             title: "Report Item",
                             description:
                                 "Lost or found something? Report it here.",
@@ -164,7 +163,6 @@ class ModernHomeUI extends StatelessWidget {
 
                       // Browse Items Card
                       ActionCard(
-                            context,
                             title: "Browse Items",
                             description: "View lost and found items on campus.",
                             icon: Icons.search,
@@ -180,7 +178,6 @@ class ModernHomeUI extends StatelessWidget {
 
                       // My Items Card
                       ActionCard(
-                            context,
                             title: "My Items",
                             description:
                                 "View items you've reported or claimed.",
