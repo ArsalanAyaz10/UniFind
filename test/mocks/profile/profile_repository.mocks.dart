@@ -1,9 +1,11 @@
 import 'package:mockito/annotations.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:unifind/core/models/user_model.dart';
+import 'package:unifind/features/profile/data/profile_repository.dart';
 
 @GenerateMocks([
+  ProfileRepository,
   FirebaseAuth,
   FirebaseFirestore,
   CollectionReference,
@@ -11,9 +13,6 @@ import 'package:http/http.dart' as http;
   DocumentSnapshot,
   QuerySnapshot,
   Query,
-  http.Client,
-  http.MultipartRequest,
-  http.MultipartFile,
   User,
 ])
 void main() {}

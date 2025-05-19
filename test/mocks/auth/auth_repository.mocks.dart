@@ -1,19 +1,17 @@
 import 'package:mockito/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
+import 'package:unifind/features/auth/data/auth_repository.dart'; // <-- Add this import
 
 @GenerateMocks([
   FirebaseAuth,
   FirebaseFirestore,
-  CollectionReference,
+  User,
+  UserCredential,
   DocumentReference,
   DocumentSnapshot,
+  CollectionReference,
   QuerySnapshot,
-  Query,
-  User,
-  http.Client,
-  http.MultipartRequest,
-  http.MultipartFile,
+  AuthRepository, // <-- Add this line!
 ])
 void main() {}
