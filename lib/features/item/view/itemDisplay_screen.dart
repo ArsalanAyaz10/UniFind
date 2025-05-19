@@ -53,6 +53,7 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen>
         backgroundColor: Color.fromRGBO(12, 77, 161, 1).withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
+        
       ),
       drawer: ModernDrawer(),
       body: BlocListener<ItemCubit, ItemState>(
