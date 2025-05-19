@@ -71,7 +71,7 @@ Read our complete project proposal for details on the problem, solution, and arc
 ![itemDetail](https://github.com/user-attachments/assets/91850681-98b0-49cf-aed1-cd4844d6e3de)
 ![browseItem](https://github.com/user-attachments/assets/05527ab2-7831-4e6f-8d50-6647ad6d7072)
 ![drawer](https://github.com/user-attachments/assets/a2ae5cf1-1850-4a08-81b8-c7c75d210dee)
-![allchat](https://github.com/user-attachments/assets/132251b0-020f-4a0f-823f-452b27b6a56a)
+![Allchat](https://github.com/user-attachments/assets/132251b0-020f-4a0f-823f-452b27b6a56a)
 ![chat](https://github.com/user-attachments/assets/66111ba2-631b-4bff-bc43-44fb4218baf5)
 
 
