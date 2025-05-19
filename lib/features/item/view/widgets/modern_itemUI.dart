@@ -155,36 +155,6 @@ class _ModernItemUIState extends State<ModernItemUI> {
                             ),
                           ),
                         ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
-                        Positioned(
-                          top: 16,
-                          left: 16,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: IconButton(
-                              icon: Icon(
-                                _isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: _isFavorite ? Colors.red : Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _isFavorite = !_isFavorite;
-                                });
-                              },
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
                       ],
                     ),
                   )

@@ -53,20 +53,6 @@ class _ItemdisplayScreenState extends State<ItemdisplayScreen>
         backgroundColor: Color.fromRGBO(12, 77, 161, 1).withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              // Search functionality
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.filter_list, color: Colors.white),
-            onPressed: () {
-              // Filter functionality
-            },
-          ),
-        ],
       ),
       drawer: ModernDrawer(),
       body: BlocListener<ItemCubit, ItemState>(
