@@ -1,34 +1,68 @@
-# Lost & Found Campus App
+# 🎒 ZABFIND – Lost & Found Campus App for SZABIST
 
-This is a Flutter application designed to help students and staff at SZABIST Karachi report, search, and connect over lost and found items across the campus, including the IDF building.
-
-## 📱 App Features
-
-- Report lost or found items with photo, location, and description.
-- Filter items by date, category, or campus location.
-- Messaging system to connect owners and finders.
-- Firebase Firestore backend for storing reports and chats.
-- User authentication to prevent spam and ensure secure access.
+ZABFIND is a Flutter-based mobile application developed to streamline the process of reporting and recovering lost and found items at SZABIST Karachi — including the IDF building. It provides a digital alternative to the current manual system and enhances accessibility, accountability, and efficiency across all campuses.
 
 ---
 
-## 🚀 Setup Instructions
+## 📱 Features
 
-1. Clone the project.
-2. Run `flutter pub get`.
-3. Configure Firebase in your project.
-4. Run the app on an emulator or physical device.
-
----
-
-## 👥 Team Members
-
-- Arsalan Ayaz — 2280139  
-- Mirza Usman Baig — 2280148  
-- Rafay Hussain — 2280157
+- 📝 Report lost or found items with photo, description, and exact campus location.
+- 💬 Real-time chat system between item owners and finders.
+- 🔐 Secure access with SZABIST email-only user authentication.
+- ☁️ Firebase integration for storing user data, listings, and chat messages.
+- 📸 Image uploads for both items and user profiles.
+- 🚀 Built using Flutter with Bloc state management and tested using Mockito.
 
 ---
 
-## 📄 License
+### 👥 Team Members
+    Arsalan Ayaz — 2280139
+    Mirza Usman Baig — 2280148
+    Rafay Hussain — 2280157
 
-MIT License. Free to use, modify, and share.
+---
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+
+- Flutter SDK installed
+- Firebase project setup
+- Android Studio or any emulator/physical device
+- Git
+
+### 🔧 Installation & Running Locally
+
+1. Clone the repository:
+        git clone https://github.com/https://github.com/ArsalanAyaz10/UniFind.git/zabfind.git
+        cd zabfind
+
+2.  Install dependencies:
+        flutter pub get
+
+3.  Configure Firebase:
+        Add your google-services.json file to android/app
+        Enable Firebase Authentication and Firestore in your Firebase console.
+
+4.  Run the app:
+        flutter run
+
+---
+
+### 📄 Project Proposal
+Read our complete project proposal for details on the problem, solution, and architecture:
+
+🔗 ZABFIND Proposal Document
+    https://drive.google.com/file/d/1LXZg7gaBdjLZ36VaHcaz828w7X0w0mFS/view?usp=sharing
+
+---
+
+### 🖼️ UI Screenshots
+
+
+
+
+
+
+
+
