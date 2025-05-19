@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cadf4c11-7178-4786-bddc-47d365acee6b" alt="logo" />
+</p>
+
 # 🎒 ZABFIND – Lost & Found Campus App for SZABIST
 
 ZABFIND is a Flutter-based mobile application developed to streamline the process of reporting and recovering lost and found items at SZABIST Karachi — including the IDF building. It provides a digital alternative to the current manual system and enhances accessibility, accountability, and efficiency across all campuses.
